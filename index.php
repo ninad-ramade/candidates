@@ -1,16 +1,15 @@
 <?php 
+define('servername', 'localhost');
+define('username', 'root');
+define('password', 'root');
+define('dbname', 'jobs');
 $email = !empty($_GET['ce']) ? base64_decode($_GET['ce']) : '';
 $education = ['B.E./B.Tech', 'B.Sc', 'M.Tech', 'M.Com', 'B.Com', 'BCA', 'MBA'];
 $skills = getSkills();
 $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
 $companies = ['Deloitte', 'TCS', 'CAP GEMINI', 'Tech Mahindra', 'HCL', 'WIPRO', 'LUMEN', 'EVOKE TECHNOLOGIES', 'MPHASIS', 'L & T', 'Hexaware', 'None'];
-
 function getSkills() {
-    $servername = "localhost";
-    $username = "root";
-    $password = "root";
-    $dbname = "jobs";
-    $db = new mysqli($servername, $username, $password, $dbname);
+    $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM skills ORDER BY skill ASC";
     $result = $db->query($sql);
     $skills = [];
@@ -24,11 +23,7 @@ function getSkills() {
 }
 
 function saveSkill($skill) {
-    $servername = "localhost";
-    $username = "root";
-    $password = "root";
-    $dbname = "jobs";
-    $db = new mysqli($servername, $username, $password, $dbname);
+    $db = new mysqli(servername, username, password, dbname);
     $sql = "INSERT INTO skills (skill) VALUES ('" . $skill . "')";
     if ($db->query($sql) === TRUE) {
         echo "New skill added successfully";
@@ -39,16 +34,12 @@ function saveSkill($skill) {
 }
 
 function saveCandidateData($data) {
-    $servername = "localhost";
-    $username = "root";
-    $password = "root";
-    $dbname = "jobs";
     $data['education'] = !empty($data['education']) ? implode(', ', $data['education']) : '';
     $data['skills'] = !empty($data['skills']) ? implode(', ', $data['skills']) : '';
     $data['subskills'] = !empty($data['subskills']) ? implode(', ', $data['subskills']) : '';
     $data['currentLocation'] = !empty($data['currentLocation']) ? implode(', ', $data['currentLocation']) : '';
     $data['preferredLocation'] = !empty($data['preferredLocation']) ? implode(', ', $data['preferredLocation']) : '';
-    $db = new mysqli($servername, $username, $password, $dbname);
+    $db = new mysqli(servername, username, password, dbname);
     unset($data['submit']);
     $sql = "INSERT INTO candidates (" . implode(", ", array_keys($data)) . ") VALUES ('" . implode("', '", array_values($data)) . "')";
     

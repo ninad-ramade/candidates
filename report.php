@@ -1,11 +1,11 @@
 <?php 
+define('servername', 'localhost');
+define('username', 'root');
+define('password', 'root');
+define('dbname', 'jobs');
 $candidates = getCandidates();
 function getCandidates() {
-    $servername = "localhost";
-    $username = "root";
-    $password = "root";
-    $dbname = "jobs";
-    $db = new mysqli($servername, $username, $password, $dbname);
+    $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM candidates";
     $result = $db->query($sql);
     $candidates = [];
