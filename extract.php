@@ -107,7 +107,7 @@ foreach($files as $file) {
 }
  ?>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME']; ?>">Resume Form</a>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/report.php'; ?>">Resume List</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . 'report.php'; ?>">Resume List</a>
 <form action="extract.php" method="post">
 	<input type="submit" name="submit">
 </form>

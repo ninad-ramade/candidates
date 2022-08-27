@@ -73,8 +73,8 @@ if(isset($_POST['submit'])) {
     }
 }
 ?>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/report.php'; ?>">Resume List</a>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/extract.php'; ?>">Extract emails</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . 'report.php'; ?>">Resume List</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . 'extract.php'; ?>">Extract emails</a>
 <form method="post" action="index.php">
 <div><label for="newSkill">Add Skill</label><input type="text" name="newSkill" id="newSkill" /><input type="submit" name="submit"/></div>
 </form>
