@@ -19,7 +19,7 @@ function getCandidates() {
 }
 $columns = !empty($candidates) ? array_keys($candidates[0]) : [];
 ?>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI']; ?>">Resume Form</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME']; ?>">Resume Form</a>
 <h3>Resume List</h3>
 <table>
 <tr>

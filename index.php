@@ -73,8 +73,8 @@ if(isset($_POST['submit'])) {
     }
 }
 ?>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . 'report.php'; ?>">Resume List</a>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'] . 'extract.php'; ?>">Extract emails</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/report.php'; ?>">Resume List</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/extract.php'; ?>">Extract emails</a>
 <form method="post" action="index.php">
 <div><label for="newSkill">Add Skill</label><input type="text" name="newSkill" id="newSkill" /><input type="submit" name="submit"/></div>
 </form>
@@ -82,7 +82,7 @@ if(isset($_POST['submit'])) {
 <form method="post" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>" enctype="multipart/form-data">
 <div><label for="name">Name</label><input type="text" name="name" id="name" /></div>
 <div><label for="mobile">Mobile No.</label><input type="text" name="mobile" id="mobile" /></div>
-<div><label for="mobile">Email</label><input type="text" name="email" id="email" readonly value="<?php echo $email; ?>" /></div>
+<div><label for="mobile">Email</label><input type="text" name="email" id="email" value="<?php echo $email; ?>" /></div>
 
 <div><label for="education">Education</label>
 <select id="education" name="education[]" multiple="multiple">
