@@ -129,6 +129,7 @@ if(!empty($_POST['submit'])) {
 	}
     ?></td>
 	<?php } ?>
+	<td><a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . '?id=' . base64_encode($candidate['id']); ?>" class="button">Edit</a></td>
 </tr>
 <?php } ?>
 </table>
