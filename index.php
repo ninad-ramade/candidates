@@ -63,7 +63,7 @@ if(isset($_POST['submit'])) {
             }
             $target_file = 'profiles/' . basename($resume["name"]);
             move_uploaded_file($resume["tmp_name"], $target_file);
-            $fileUrl = 'http://' . $_SERVER['SERVER_NAME'] . '/'. $target_file;
+            $fileUrl = 'http://' . $_SERVER['SERVER_NAME'] . baseurl . '/'. $target_file;
             $_POST['resume'] = $fileUrl;
         }
         saveCandidateData($_POST);
@@ -137,6 +137,7 @@ if(isset($_POST['submit'])) {
 <?php foreach($locations as $location) { ?>
 <option value="<?php echo $location; ?>"><?php echo $location; ?></option>
 <?php } ?>
+<option value="Any">Any</option>
 </select></div>
 
 <div><label for="currentCompany">Current Company</label>
