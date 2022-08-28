@@ -103,7 +103,7 @@ if(!empty($_POST['submit'])) {
 <?php foreach($locations as $location) { ?>
 <option value="<?php echo $location; ?>" <?php echo !empty($_POST['preferredLocation']) ? (in_array($location, $_POST['preferredLocation']) ? 'selected="selected"' : '') : ''; ?>><?php echo $location; ?></option>
 <?php } ?>
-<option value="Any">Any</option>
+<option value="">Any</option>
 </select>
 
 <label for="preferredLocation">Salary Range (Lacs)</label>
