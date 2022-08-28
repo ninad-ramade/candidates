@@ -1,8 +1,5 @@
-<?php 
-define('servername', 'localhost');
-define('username', 'root');
-define('password', 'root');
-define('dbname', 'jobs');
+<?php
+include_once 'config.php';
 $candidates = getCandidates();
 function getCandidates() {
     $db = new mysqli(servername, username, password, dbname);
@@ -19,7 +16,7 @@ function getCandidates() {
 }
 $columns = !empty($candidates) ? array_keys($candidates[0]) : [];
 ?>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME']; ?>">Resume Form</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
 <h3>Resume List</h3>
 <table>
 <tr>

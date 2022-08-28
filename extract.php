@@ -1,4 +1,5 @@
 <?php
+include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -66,7 +67,7 @@ function sendEmail($email) {
     $mail->SetFrom("rtjobs@gmail.com", "RTJobs");
     $mail->AddReplyTo("rtjobs@gmail.com", "RTJobs");
     $mail->Subject = "RT Jobs Candidature";
-    $content = 'Hi, ' . $username . ',<br/><br/>Please click below link to fill up the form.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . '/rtjobs/?ce=' . base64_encode($email) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
+    $content = 'Hi, ' . $username . ',<br/><br/>Please click below link to fill up the form.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
     $mail->MsgHTML($content);
     if(!$mail->Send()) {
         return false;
@@ -106,8 +107,8 @@ foreach($files as $file) {
     $allFiles[] = $eachFile;
 }
  ?>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME']; ?>">Resume Form</a>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/report.php'; ?>">Resume List</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Resume List</a>
 <form action="extract.php" method="post">
 	<input type="submit" name="submit">
 </form>

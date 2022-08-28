@@ -1,8 +1,5 @@
 <?php 
-define('servername', 'localhost');
-define('username', 'root');
-define('password', 'root');
-define('dbname', 'jobs');
+include_once 'config.php';
 $email = !empty($_GET['ce']) ? base64_decode($_GET['ce']) : '';
 $education = ['B.E./B.Tech', 'B.Sc', 'M.Tech', 'M.Com', 'B.Com', 'BCA', 'MBA'];
 $skills = getSkills();
@@ -73,8 +70,8 @@ if(isset($_POST['submit'])) {
     }
 }
 ?>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/report.php'; ?>">Resume List</a>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . '/extract.php'; ?>">Extract emails</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Resume List</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php'; ?>">Extract emails</a>
 <form method="post" action="index.php">
 <div><label for="newSkill">Add Skill</label><input type="text" name="newSkill" id="newSkill" /><input type="submit" name="submit"/></div>
 </form>
