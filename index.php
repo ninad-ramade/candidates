@@ -3,6 +3,7 @@
 include_once 'config.php';
 $email = !empty($_GET['ce']) ? base64_decode($_GET['ce']) : '';
 $id = !empty($_GET['id']) ? base64_decode($_GET['id']) : '';
+$accessBy = !empty($email) ? 'Candidate' : 'Admin';
 $education = ['B.E./B.Tech', 'B.Sc', 'M.Tech', 'M.Com', 'B.Com', 'BCA', 'MBA'];
 $skills = getSkills();
 $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
@@ -37,12 +38,13 @@ function saveSkill($skill) {
     $db->close();
 }
 
-function saveCandidateData($data) {
+function saveCandidateData($data, $accessBy) {
     $data['education'] = !empty($data['education']) ? implode(', ', $data['education']) : '';
     $data['skills'] = !empty($data['skills']) ? implode(', ', $data['skills']) : '';
     $data['subskills'] = !empty($data['subskills']) ? implode(', ', $data['subskills']) : '';
     $data['currentLocation'] = !empty($data['currentLocation']) ? implode(', ', $data['currentLocation']) : '';
     $data['preferredLocation'] = !empty($data['preferredLocation']) ? implode(', ', $data['preferredLocation']) : '';
+    $data['status'] = !empty($data['candidateId']) ? 'Updated by ' . $accessBy : 'Created';
     $db = new mysqli(servername, username, password, dbname);
     unset($data['submit']);
     if(empty($data['resume'])) {
@@ -84,28 +86,30 @@ if(isset($_POST['submit'])) {
                 echo 'Invalid file type. Please upload ' . implode(', ', $allowedFiles) . ' only.';
                 exit;
             }
-            $target_file = 'profiles/' . basename($resume["name"]);
+            $target_file = 'profiles/processed/' . basename($resume["name"]);
             move_uploaded_file($resume["tmp_name"], $target_file);
             $fileUrl = 'http://' . $_SERVER['SERVER_NAME'] . baseurl . $target_file;
             $_POST['resume'] = $fileUrl;
         }
-        saveCandidateData($_POST);
+        saveCandidateData($_POST, $accessBy);
     }
 }
 if(!empty($id)) {
     $candidateDetails = getCandidate($id);
 }
 ?>
+<?php if(empty($email)) { ?>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Resume List</a>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php'; ?>">Extract emails</a>
 <form method="post" action="index.php">
 <div><label for="newSkill">Add Skill</label><input type="text" name="newSkill" id="newSkill" /><input type="submit" name="submit"/></div>
 </form>
+<?php } ?>
 <h3>Candidate Info</h3>
-<form method="post" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>" enctype="multipart/form-data">
+<form method="post" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>" enctype="multipart/form-data">
 <div><label for="name">Name</label><input type="text" name="name" id="name" value="<?php echo !empty($candidateDetails) ? $candidateDetails['name'] : ''; ?>" /></div>
-<div><label for="mobile">Mobile No.</label><input type="text" name="mobile" id="mobile" value="<?php echo !empty($candidateDetails) ? $candidateDetails['mobile'] : ''; ?>" /></div>
-<div><label for="mobile">Email</label><input type="text" name="email" id="email" value="<?php echo !empty($candidateDetails) ? $candidateDetails['email'] : $email; ?>" /></div>
+<div><label for="mobile">Mobile No.</label><input required type="text" name="mobile" id="mobile" value="<?php echo !empty($candidateDetails) ? $candidateDetails['mobile'] : ''; ?>" /></div>
+<div><label for="mobile">Email</label><input required type="text" name="email" id="email" value="<?php echo !empty($candidateDetails) ? $candidateDetails['email'] : $email; ?>" /></div>
 
 <div><label for="education">Education</label>
 <select id="education" name="education[]" multiple="multiple">
@@ -116,7 +120,7 @@ if(!empty($id)) {
 </select></div>
 
 <div><label for="skills">Skills</label>
-<select id="skills" name="skills[]" multiple="multiple">
+<select required id="skills" name="skills[]" multiple="multiple">
 <option value="">Select</option>
 <?php foreach($skills as $eachskill) { ?>
 <option value="<?php echo $eachskill['skill']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['skill'], explode(", ", $candidateDetails['skills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>

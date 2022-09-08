@@ -1,4 +1,5 @@
 <?php
+//ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -7,10 +8,24 @@ require_once 'vendor/autoload.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
-$resumeDir = 'profiles';
+$resumeDir = 'profiles/unprocessed';
+$processedResumeDir = 'profiles/processed';
 $files = array_diff(scandir($resumeDir), ['.', '..']);
 $allFiles = [];
 
+function getSkills() {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM skills ORDER BY skill ASC";
+    $result = $db->query($sql);
+    $skills = [];
+    if ($result->num_rows < 1) {
+        return $skills;
+    }
+    while($row = $result->fetch_assoc()) {
+        $skills[] = $row;
+    }
+    return $skills;
+}
 function read_docx($filename){
     
     $striped_content = '';
@@ -42,14 +57,27 @@ function getEmailFromContent($content) {
     preg_match_all("/[a-z0-9_\-\+\.]+@[a-z0-9\-]+\.([a-z]{2,4})(?:\.[a-z]{2})?/i", $content, $emails);
     $emails = filter_var_array($emails, FILTER_VALIDATE_EMAIL);
     $emails = array_filter($emails);
-    return !empty($emails) ? $emails[0][0] : '';
+    $email = !empty($emails) ? $emails[0][0] : '';
+    $emailParts = explode('.', $email);
+    if(strlen($emailParts[count($emailParts)-1]) > 3) {
+        $email = substr($email, 0, -1);
+    }
+    return $email;
+}
+function getSkillFromContent($content) {
+    $allSkills = array_column(getSkills(), 'skill');
+    $skills = [];
+    foreach($allSkills as $eachSkill) {
+        $skills[] = !empty(strstr(strtolower($content), strtolower($eachSkill))) ? $eachSkill : '';
+    }
+    return array_filter($skills);
 }
 function getPhoneFromContent($content) {
-    preg_match_all("/^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?\s?|[0]?)?[789]\d{9}$/", $content, $phones);
+    preg_match_all("/[+91\s-]+[6-9][0-9]{9}/", $content, $phones);
     $phones = array_filter($phones);
     return !empty($phones) ? $phones[0][0] : '';
 }
-function sendEmail($email) {
+function sendEmail($email, $id) {
     $emailParts = explode("@", $email);
     $username = $emailParts[0];
     $mail = new PHPMailer();
@@ -67,13 +95,14 @@ function sendEmail($email) {
     $mail->SetFrom("rtjobs@gmail.com", "RTJobs");
     $mail->AddReplyTo("rtjobs@gmail.com", "RTJobs");
     $mail->Subject = "RT Jobs Candidature";
-    $content = 'Hi, ' . $username . ',<br/><br/>Please click below link to fill up the form.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
+    $content = 'Hi, ' . $username . ',<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
     $mail->MsgHTML($content);
     if(!$mail->Send()) {
         return false;
     }
     return true;
 }
+$db = new mysqli(servername, username, password, dbname);
 foreach($files as $file) {
     $content = '';
     $eachFile = [];
@@ -81,31 +110,29 @@ foreach($files as $file) {
     if($_POST['submit'] == 'Submit') {
         $ext = pathinfo($file, PATHINFO_EXTENSION);
         $filePath = $resumeDir . '/' . $file;
-        $content = file_get_contents($filePath);
+        $content = preg_replace("/[^a-zA-Z0-9\s+@.:]+/", "", file_get_contents($filePath));
+        if($ext == 'docx') {
+            $content = read_docx($filePath);
+        }
         $email = getEmailFromContent($content);
         $phone = getPhoneFromContent($content);
-        if(empty($email)) {
-            if($ext == 'docx') {
-                $content = read_docx($filePath);
-                $email = getEmailFromContent($content);
+        $skill = implode(", ", getSkillFromContent($content));
+        if(!empty($email) && ($email == 'ninad.ramade@gmail.com')) {
+            $sql = "INSERT INTO candidates (mobile, email, skills, resume, status) VALUES ('".$phone."', '".$email."', '".$skill."','http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file . "', 'Email sent')";
+            if($db->query($sql) === TRUE) {
+                if(sendEmail($email, $db->insert_id)) {
+                    $eachFile['status'] = 'Email sent';
+                }
             }
-        }
-        if(empty($phone)) {
-            if($ext == 'docx') {
-                $content = read_docx($filePath);
-                $phone = getPhoneFromContent($content);
-            }
-        }
-        if(!empty($email) && ($email == 'ninad.ramade@gmail.com' || $email == 'srinathgb@gmail.com')) {
-            if(sendEmail($email)) {
-                $eachFile['status'] = 'Email sent';
-            }
+            rename($resumeDir .'/'. $file, $processedResumeDir .'/'. $file);
         }
         $eachFile['email'] = $email;
         $eachFile['phone'] = $phone;
+        $eachFile['skills'] = $skill;
     }
     $allFiles[] = $eachFile;
 }
+$db->close();
  ?>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Resume List</a>
@@ -117,11 +144,13 @@ foreach($files as $file) {
 	<td><strong>File</strong></td>
 	<td><strong>Email</strong></td>
 	<td><strong>Phone</strong></td>
+	<td><strong>Skills</strong></td>
 	<td><strong>Status</strong></td></tr>
 <?php foreach($allFiles as $file) { ?>
 <tr><td><?php echo $file['name']; ?></td>
 <td><?php echo !empty($file['email']) ? $file['email'] : ''; ?></td>
 <td><?php echo !empty($file['phone']) ? $file['phone'] : ''; ?></td>
+<td><?php echo !empty($file['skills']) ? $file['skills'] : ''; ?></td>
 <td><?php echo !empty($file['status']) ? $file['status'] : 'Pending'; ?></td></tr>
 <?php } ?>
 </table>

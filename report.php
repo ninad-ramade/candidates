@@ -105,7 +105,14 @@ if(!empty($_POST['submit'])) {
 <?php } ?>
 <option value="">Any</option>
 </select>
-
+<label for="preferredLocation">Status</label>
+<select required id="status" name="status[]" multiple="multiple">
+	<option value="">Select</option>
+	<option value="Created">Created</option>
+	<option value="Email sent">Email sent</option>
+	<option value="Updated by Candidate">Updated by Candidate</option>
+	<option value="Updated by Admin">Updated by Admin</option>
+</select>
 <label for="preferredLocation">Salary Range (Lacs)</label>
 <input name="salaryFrom" id="salaryFrom" type="text" placeholder="From" value="<?php echo $_POST['salaryFrom']; ?>" />
 <input name="salaryTo" id="salaryTo" type="text" placeholder="To" value="<?php echo $_POST['salaryTo']; ?>" />
