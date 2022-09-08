@@ -1,3 +1,2 @@
 config.php
-profiles/processed/*
-profiles/unprocessed/*
+profiles/*
