@@ -1,13 +1,6 @@
 <?php
 //ini_set('display_errors', 1);
 include_once 'config.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-require_once 'vendor/autoload.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
 $resumeDir = 'profiles/unprocessed';
 $processedResumeDir = 'profiles/processed';
 $files = array_diff(scandir($resumeDir), ['.', '..']);
@@ -77,38 +70,43 @@ function getPhoneFromContent($content) {
     $phones = array_filter($phones);
     return !empty($phones) ? $phones[0][0] : '';
 }
-function sendEmail($email, $id) {
-    $emailParts = explode("@", $email);
-    $username = $emailParts[0];
-    $mail = new PHPMailer();
-    $mail->IsSMTP();
-    $mail->Mailer = "smtp";
-    //$mail->SMTPDebug  = 1;
-    $mail->SMTPAuth   = TRUE;
-    $mail->SMTPSecure = "tls";
-    $mail->Port       = 587;
-    $mail->Host       = "smtp.gmail.com";
-    $mail->Username   = "ninad.pegasusone@gmail.com";
-    $mail->Password   = "tprpidykjnvrvjwf";
-    $mail->IsHTML(true);
-    $mail->AddAddress($email, $username);
-    $mail->SetFrom("rtjobs@gmail.com", "RTJobs");
-    $mail->AddReplyTo("rtjobs@gmail.com", "RTJobs");
-    $mail->Subject = "RT Jobs Candidature";
-    $content = 'Hi, ' . $username . ',<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
-    $mail->MsgHTML($content);
-    if(!$mail->Send()) {
-        return false;
+if($_POST['submit'] == 'Upload and process') {
+    $allowedFiles = ['doc', 'docx', 'zip'];
+    $_POST['resume'] = '';
+    if(!empty($_FILES['resume']['name'])) {
+        $resume = $_FILES['resume'];
+        $ext = pathinfo($resume['name'], PATHINFO_EXTENSION);
+        if(!in_array($ext, $allowedFiles)) {
+            echo 'Invalid file type. Please upload ' . implode(', ', $allowedFiles) . ' only.';
+            exit;
+        }
+        $target_file = 'profiles/unprocessed/' . basename($resume["name"]);
+        if(!move_uploaded_file($resume["tmp_name"], $target_file)) {
+            echo 'Files uploa failed.';
+            exit;
+        }
+        if(strtolower($ext) == 'zip') {
+            $zip = new ZipArchive;
+            $zipFile = $zip->open($target_file);
+            if ($zipFile === true) {
+                $zip->extractTo('profiles/unprocessed/');
+                $zip->close();
+                unlink($target_file);
+            }
+        }
+        echo 'Files uploaded successfully. Reloading...';
+        header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php');
     }
-    return true;
-}
-$db = new mysqli(servername, username, password, dbname);
-foreach($files as $file) {
-    $content = '';
-    $eachFile = [];
-    $eachFile['name'] = $file;
-    if($_POST['submit'] == 'Submit') {
+} else {
+    $db = new mysqli(servername, username, password, dbname);
+    foreach($files as $file) {
+        $content = '';
+        $eachFile = [];
+        $eachFile['name'] = $file;
         $ext = pathinfo($file, PATHINFO_EXTENSION);
+        if(strtolower($ext) == 'pdf') {
+            continue;
+        }
         $filePath = $resumeDir . '/' . $file;
         $content = preg_replace("/[^a-zA-Z0-9\s+@.:]+/", "", file_get_contents($filePath));
         if($ext == 'docx') {
@@ -117,28 +115,33 @@ foreach($files as $file) {
         $email = getEmailFromContent($content);
         $phone = getPhoneFromContent($content);
         $skill = implode(", ", getSkillFromContent($content));
-        if(!empty($email) && ($email == 'ninad.ramade@gmail.com')) {
-            $sql = "INSERT INTO candidates (mobile, email, skills, resume, status) VALUES ('".$phone."', '".$email."', '".$skill."','http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file . "', 'Email sent')";
+        if(!empty($email)) {
+            $sql = "INSERT INTO candidates (mobile, email, skills, subskills, resume, status) VALUES ('".$phone."', '".$email."', '".$skill."', '".$skill."', 'http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file . "', 'Created')";
             if($db->query($sql) === TRUE) {
-                if(sendEmail($email, $db->insert_id)) {
+                /* if(sendEmail($email, $db->insert_id)) {
                     $eachFile['status'] = 'Email sent';
-                }
+                } */
+                $eachFile['status'] = 'Created';
+                rename($resumeDir .'/'. $file, $processedResumeDir .'/'. $file);
             }
-            rename($resumeDir .'/'. $file, $processedResumeDir .'/'. $file);
         }
         $eachFile['email'] = $email;
         $eachFile['phone'] = $phone;
         $eachFile['skills'] = $skill;
+        $allFiles[] = $eachFile;
     }
-    $allFiles[] = $eachFile;
+    $db->close();
 }
-$db->close();
  ?>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Resume List</a>
-<form action="extract.php" method="post">
-	<input type="submit" name="submit">
+<form action="extract.php" method="post" enctype="multipart/form-data">
+	<label>Upload to unprocessed</label> <input type="file" name="resume" />
+	<input type="submit" name="submit" value="Upload and process"> (Only doc, docx and zip allowed)
 </form>
+<!-- <form action="extract.php" method="post">
+	<input type="submit" name="submit" value="Start Extraction">
+</form> -->
 <table>
 <tr>
 	<td><strong>File</strong></td>

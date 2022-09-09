@@ -1,7 +1,13 @@
 <?php
 //ini_set('display_errors', 1);
 include_once 'config.php';
-$candidates = getCandidates();
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
+require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
 function getCandidates($filterData = []) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM candidates";
@@ -49,24 +55,64 @@ function getSkills() {
     }
     return $skills;
 }
-$columns = !empty($candidates) ? array_keys($candidates[0]) : [];
+function sendEmail($email, $id) {
+    $emailParts = explode("@", $email);
+    $username = $emailParts[0];
+    $mail = new PHPMailer();
+    $mail->IsSMTP();
+    $mail->Mailer = "smtp";
+    //$mail->SMTPDebug  = 1;
+    $mail->SMTPAuth   = TRUE;
+    $mail->SMTPSecure = "tls";
+    $mail->Port       = 587;
+    $mail->Host       = "smtp.gmail.com";
+    $mail->Username   = "ninad.pegasusone@gmail.com";
+    $mail->Password   = "tprpidykjnvrvjwf";
+    $mail->IsHTML(true);
+    $mail->AddAddress($email, $username);
+    $mail->SetFrom("rtjobs@gmail.com", "RTJobs");
+    $mail->AddReplyTo("rtjobs@gmail.com", "RTJobs");
+    $mail->Subject = "RT Jobs Candidature";
+    $content = 'Hi, ' . $username . ',<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
+    $mail->MsgHTML($content);
+    if(!$mail->Send()) {
+        return false;
+    }
+    return true;
+}
+$candidates = [];
 $skills = getSkills();
 $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
 if(!empty($_POST['submit'])) {
     if($_POST['submit'] == 'Reset') {
         $_POST = $data = [];
-    } else {
+        header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php');
+    }
+    else {
         $data = $_POST;
         unset($data['submit']);
+        $candidates = getCandidates($data);
+        if($_POST['submit'] == 'Send email to candidates to update') {
+            foreach ($candidates as $candidate) {
+                if(sendEmail($candidate['email'], $candidate['id'])) {
+                    $db = new mysqli(servername, username, password, dbname);
+                    $sql = "UPDATE candidates SET status = 'Email sent' WHERE id = " . $candidate['id'];
+                    $db->query($sql);
+                }
+            }
+            echo 'Email sent successfully';
+        }
     }
-    $candidates = getCandidates($data);
+    $columns = !empty($candidates) ? array_keys($candidates[0]) : [];
 }
 ?>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
-<h3>Resume List</h3>
+
 <form action="report.php" method="post">
+<input type="submit" name="submit" value="Send email to candidates to update" />
+<h3>Resume List</h3>
 <div><label for="skills">Skills</label>
-<select id="skills" name="skills[]" multiple="multiple">
+<select required id="skills" name="skills[]" multiple="multiple">
 <option value="">Select</option>
 <?php foreach($skills as $eachskill) { ?>
 <option value="<?php echo $eachskill['skill']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['skill'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
@@ -106,7 +152,7 @@ if(!empty($_POST['submit'])) {
 <option value="">Any</option>
 </select>
 <label for="preferredLocation">Status</label>
-<select required id="status" name="status[]" multiple="multiple">
+<select id="status" name="status[]" multiple="multiple">
 	<option value="">Select</option>
 	<option value="Created">Created</option>
 	<option value="Email sent">Email sent</option>

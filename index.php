@@ -100,7 +100,7 @@ if(!empty($id)) {
 ?>
 <?php if(empty($email)) { ?>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Resume List</a>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php'; ?>">Extract emails</a>
+<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php'; ?>">Extract Profiles</a>
 <form method="post" action="index.php">
 <div><label for="newSkill">Add Skill</label><input type="text" name="newSkill" id="newSkill" /><input type="submit" name="submit"/></div>
 </form>
