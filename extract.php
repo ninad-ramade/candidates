@@ -125,9 +125,11 @@ if($_POST['submit'] == 'Upload and process') {
                     } */
                     $eachFile['status'] = 'Created';
                     rename($resumeDir .'/'. $file, $processedResumeDir .'/'. $file);
+                } else {
+                    echo $db->error;
                 }
             } catch (Exception $e) {
-                echo $phone . $e->getMessage();
+                echo $e->getMessage();
             }
         }
         $eachFile['email'] = $email;
