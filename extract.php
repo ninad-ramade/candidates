@@ -118,7 +118,7 @@ if($_POST['submit'] == 'Upload and process') {
         $skill = implode(", ", getSkillFromContent($content));
         if(!empty($email)) {
             $name = explode("@", $email);
-            $resume = mysqli_real_escape_string("http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file);
+            $resume = mysqli_real_escape_string($db, "http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file);
             $sql = "SELECT * FROM candidates WHERE email = '" . $email . "'";
             $result = $db->query($sql);
             $existingCandidate = mysqli_fetch_assoc($result);
