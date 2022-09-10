@@ -8,9 +8,14 @@ $education = ['B.E./B.Tech', 'B.Sc', 'M.Tech', 'M.Com', 'B.Com', 'BCA', 'MBA'];
 $skills = getSkills();
 $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
 $companies = ['Deloitte', 'TCS', 'CAP GEMINI', 'Tech Mahindra', 'HCL', 'WIPRO', 'LUMEN', 'EVOKE TECHNOLOGIES', 'MPHASIS', 'L & T', 'Hexaware', 'None'];
-function getSkills() {
+function getSkills($skill = null) {
     $db = new mysqli(servername, username, password, dbname);
-    $sql = "SELECT * FROM skills ORDER BY skill ASC";
+    $sql = "SELECT * FROM skills";
+    if(!empty($skill)) {
+        $sql .= " WHERE LOWER(skill) = '" . strtolower($skill) . "'";
+    } else {
+        $sql .= " ORDER BY skill ASC";
+    }
     $result = $db->query($sql);
     $skills = [];
     if ($result->num_rows < 1) {
@@ -29,11 +34,16 @@ function getCandidate($id) {
 }
 function saveSkill($skill) {
     $db = new mysqli(servername, username, password, dbname);
-    $sql = "INSERT INTO skills (skill) VALUES ('" . $skill . "')";
-    if ($db->query($sql) === TRUE) {
-        echo "New skill added successfully";
+    $existingSKill = getSkills($skill);
+    if(!empty($existingSKill) && count($existingSKill) > 0) {
+        echo 'Skill ' .$skill. ' already exists.';
     } else {
-        echo "Error: " . $sql . "<br>" . $db->error;
+        $sql = "INSERT INTO skills (skill) VALUES ('" . $skill . "')";
+        if ($db->query($sql) === TRUE) {
+            echo "New skill added successfully";
+        } else {
+            echo "Error: " . $sql . "<br>" . $db->error;
+        }
     }
     $db->close();
 }

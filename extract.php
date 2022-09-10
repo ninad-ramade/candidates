@@ -118,12 +118,17 @@ if($_POST['submit'] == 'Upload and process') {
         $skill = implode(", ", getSkillFromContent($content));
         if(!empty($email)) {
             $name = explode("@", $email);
-            $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skill."', '".$skill."', 'http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file . "', 'Created')";
+            $resume = "http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file;
+            $sql = "SELECT * FROM candidates WHERE email = '" . $email . "'";
+            $result = $db->query($sql);
+            $existingCandidate = mysqli_fetch_assoc($result);
+            if(!empty($existingCandidate)) {
+                $sql = "UPDATE candidates SET name = '" . $name . "', mobile = '" . $phone . "', skills = '" . $skill . "', subskills = '" . $skill . "', resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
+            } else {
+                $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skill."', '".$skill."', '" . $resume . "', 'Created')";
+            }
             try {
                 if($db->query($sql) === TRUE) {
-                    /* if(sendEmail($email, $db->insert_id)) {
-                        $eachFile['status'] = 'Email sent';
-                    } */
                     $eachFile['status'] = 'Created';
                     rename($resumeDir .'/'. $file, $processedResumeDir .'/'. $file);
                 } else {
