@@ -116,7 +116,8 @@ if($_POST['submit'] == 'Upload and process') {
         $phone = getPhoneFromContent($content);
         $skill = implode(", ", getSkillFromContent($content));
         if(!empty($email)) {
-            $sql = "INSERT INTO candidates (mobile, email, skills, subskills, resume, status) VALUES ('".$phone."', '".$email."', '".$skill."', '".$skill."', 'http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file . "', 'Created')";
+            $name = explode("@", $email);
+            $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skill."', '".$skill."', 'http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file . "', 'Created')";
             if($db->query($sql) === TRUE) {
                 /* if(sendEmail($email, $db->insert_id)) {
                     $eachFile['status'] = 'Email sent';
