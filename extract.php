@@ -158,7 +158,7 @@ if($_POST['submit'] == 'Upload and process') {
 	<td><strong>Skills</strong></td>
 	<td><strong>Status</strong></td></tr>
 <?php foreach($allFiles as $file) { ?>
-<tr><td><?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'profiles/unprocessed/' .$file['name']; ?></td>
+<tr><td><a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'profiles/unprocessed/' .$file['name']; ?>" target="blank"><?php echo $file['name']; ?></a></td>
 <td><?php echo !empty($file['email']) ? $file['email'] : ''; ?></td>
 <td><?php echo !empty($file['phone']) ? $file['phone'] : ''; ?></td>
 <td><?php echo !empty($file['skills']) ? $file['skills'] : ''; ?></td>
