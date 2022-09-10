@@ -99,12 +99,13 @@ if($_POST['submit'] == 'Upload and process') {
     }
 } else {
     $db = new mysqli(servername, username, password, dbname);
+    $allowedExtensions = ['doc', 'docx'];
     foreach($files as $file) {
         $content = '';
         $eachFile = [];
         $eachFile['name'] = $file;
         $ext = pathinfo($file, PATHINFO_EXTENSION);
-        if(strtolower($ext) == 'pdf') {
+        if(!in_array(strtolower($ext), $allowedExtensions)) {
             continue;
         }
         $filePath = $resumeDir . '/' . $file;
