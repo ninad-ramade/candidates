@@ -127,7 +127,7 @@ if($_POST['submit'] == 'Upload and process') {
                     rename($resumeDir .'/'. $file, $processedResumeDir .'/'. $file);
                 }
             } catch (Exception $e) {
-                var_dump($phone);
+                echo $phone;
             }
         }
         $eachFile['email'] = $email;
