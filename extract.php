@@ -118,12 +118,16 @@ if($_POST['submit'] == 'Upload and process') {
         if(!empty($email)) {
             $name = explode("@", $email);
             $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skill."', '".$skill."', 'http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file . "', 'Created')";
-            if($db->query($sql) === TRUE) {
-                /* if(sendEmail($email, $db->insert_id)) {
-                    $eachFile['status'] = 'Email sent';
-                } */
-                $eachFile['status'] = 'Created';
-                rename($resumeDir .'/'. $file, $processedResumeDir .'/'. $file);
+            try {
+                if($db->query($sql) === TRUE) {
+                    /* if(sendEmail($email, $db->insert_id)) {
+                        $eachFile['status'] = 'Email sent';
+                    } */
+                    $eachFile['status'] = 'Created';
+                    rename($resumeDir .'/'. $file, $processedResumeDir .'/'. $file);
+                }
+            } catch (Exception $e) {
+                var_dump($phone);exit;
             }
         }
         $eachFile['email'] = $email;
