@@ -165,6 +165,21 @@ if(!empty($_POST['submit'])) {
     $columns = !empty($candidates) ? array_keys($candidates[0]) : [];
 }
 ?>
+<script>
+function validateCustomEmail(e) {
+	if(document.getElementById("customBody").value == '') {
+		alert('Please enter email body.');
+		e.preventDefault();
+		return false;
+	}
+	if(document.getElementById("vendor").value == '') {
+		alert('Please select vendor.');
+		e.preventDefault();
+		return false;
+	}
+	return true;
+}
+</script>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
 
 <form action="report.php" method="post">
@@ -177,7 +192,7 @@ if(!empty($_POST['submit'])) {
     		<option value="<?php echo $vendor['id']; ?>"><?php echo $vendor['name']; ?></option>
     	<?php } ?>
     </select>
-    <input type="submit" name="submit" value="Send custom email" />
+    <input type="submit" name="submit" onclick="validateCustomEmail(event)" value="Send custom email" />
 </div>
 <h3>Resume List</h3>
 <div><label for="skills">Skills</label>
