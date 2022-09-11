@@ -123,7 +123,7 @@ if($_POST['submit'] == 'Upload and process') {
             $result = $db->query($sql);
             $existingCandidate = mysqli_fetch_assoc($result);
             if(!empty($existingCandidate)) {
-                $sql = "UPDATE candidates SET name = '" . $name . "', mobile = '" . $phone . "', skills = '" . $skill . "', subskills = '" . $skill . "', resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
+                $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skill . "', subskills = '" . $skill . "', resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
             } else {
                 $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skill."', '".$skill."', '" . $resume . "', 'Created')";
             }
