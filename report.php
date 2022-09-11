@@ -1,5 +1,5 @@
 <?php
-//ini_set('display_errors', 1);
+ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -30,7 +30,7 @@ function getCandidates($filterData = []) {
         }
     }
     if(!empty($where)) {
-        $sql .= ' WHERE (' . implode(" AND ", $where) . ')';
+        $sql .= ' WHERE (' . implode(" AND ", array_filter($where)) . ')';
     }
     $result = $db->query($sql);
     $candidates = [];
@@ -55,9 +55,21 @@ function getSkills() {
     }
     return $skills;
 }
-function sendEmail($email, $id) {
-    $emailParts = explode("@", $email);
-    $username = $emailParts[0];
+function getVendors() {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM vendors ORDER BY name ASC";
+    $result = $db->query($sql);
+    $vendors = [];
+    if ($result->num_rows < 1) {
+        return $vendors;
+    }
+    while($row = $result->fetch_assoc()) {
+        $vendors[] = $row;
+    }
+    return $vendors;
+}
+function sendEmail($email, $name, $id) {
+    $fromEmail = 'rapid.jobs12@gmail.com';
     $mail = new PHPMailer();
     $mail->IsSMTP();
     $mail->Mailer = "smtp";
@@ -66,14 +78,38 @@ function sendEmail($email, $id) {
     $mail->SMTPSecure = "tls";
     $mail->Port       = 587;
     $mail->Host       = "smtp.gmail.com";
-    $mail->Username   = "ninad.pegasusone@gmail.com";
-    $mail->Password   = "tprpidykjnvrvjwf";
+    $mail->Username   = $fromEmail;
+    $mail->Password   = "howzfglpuhfruwjy";
     $mail->IsHTML(true);
-    $mail->AddAddress($email, $username);
-    $mail->SetFrom("rtjobs@gmail.com", "RTJobs");
-    $mail->AddReplyTo("rtjobs@gmail.com", "RTJobs");
+    $mail->AddAddress($email, $name);
+    $mail->setFrom($fromEmail, "RTJobs");
+    $mail->AddReplyTo($fromEmail, "RTJobs");
     $mail->Subject = "RT Jobs Candidature";
-    $content = 'Hi, ' . $username . ',<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
+    $content = 'Hi, ' . $name . ',<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
+    $mail->MsgHTML($content);
+    if(!$mail->Send()) {
+        return false;
+    }
+    return true;
+}
+function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
+    $fromEmail = 'rapid.jobs12@gmail.com';
+    $mail = new PHPMailer();
+    $mail->IsSMTP();
+    $mail->Mailer = "smtp";
+    //$mail->SMTPDebug  = 1;
+    $mail->SMTPAuth   = TRUE;
+    $mail->SMTPSecure = "tls";
+    $mail->Port       = 587;
+    $mail->Host       = "smtp.gmail.com";
+    $mail->Username   = $fromEmail;
+    $mail->Password   = "howzfglpuhfruwjy";
+    $mail->IsHTML(true);
+    $mail->AddAddress($email, $name);
+    $mail->setFrom($fromEmail, "RTJobs");
+    $mail->AddReplyTo($fromEmail, "RTJobs");
+    $mail->Subject = $subject;
+    $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . 'apply.php?id=' . base64_encode($applicationId) . '" target="blank">Apply Now</a><br/><br/>Thanks<br/><br/>RT Jobs';
     $mail->MsgHTML($content);
     if(!$mail->Send()) {
         return false;
@@ -82,6 +118,7 @@ function sendEmail($email, $id) {
 }
 $candidates = [];
 $skills = getSkills();
+$vendors = getVendors();
 $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
 if(!empty($_POST['submit'])) {
     if($_POST['submit'] == 'Reset') {
@@ -91,16 +128,38 @@ if(!empty($_POST['submit'])) {
     else {
         $data = $_POST;
         unset($data['submit']);
+        unset($data['customBody']);
+        unset($data['vendor']);
         $candidates = getCandidates($data);
         if($_POST['submit'] == 'Send email to candidates to update') {
             foreach ($candidates as $candidate) {
-                if(sendEmail($candidate['email'], $candidate['id'])) {
+                if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'])) {
                     $db = new mysqli(servername, username, password, dbname);
                     $sql = "UPDATE candidates SET status = 'Email sent' WHERE id = " . $candidate['id'];
                     $db->query($sql);
                 }
             }
             echo 'Email sent successfully';
+        } else if($_POST['submit'] == 'Send custom email') {
+            foreach ($candidates as $candidate) {
+                $db = new mysqli(servername, username, password, dbname);
+                $subject = "Profile for " . implode(", ", $data['skills']);
+                if(!empty($data['overallExperience'])) {
+                    $subject .= " with " . implode(", ", $data['overallExperience']) . " Years experience";
+                }
+                if(!empty($data['preferredLocation'])) {
+                    $subject .= " at " . implode(", ", $data['preferredLocation']) . " location";
+                }
+                $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentOn, subject, status) VALUES (" . $_POST['vendor'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
+                if($db->query($sql) === TRUE) {
+                    if(!sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $_POST['customBody'])) {
+                        echo 'Could not send the email';
+                    }
+                    else {
+                        echo 'Custom email sent successfully';
+                    }
+                }
+            }
         }
     }
     $columns = !empty($candidates) ? array_keys($candidates[0]) : [];
@@ -110,6 +169,16 @@ if(!empty($_POST['submit'])) {
 
 <form action="report.php" method="post">
 <input type="submit" name="submit" value="Send email to candidates to update" />
+<div>
+    <textarea id="customBody" name="customBody" placeholder="Email body"></textarea>
+    <select id="vendor" name="vendor">
+    	<option value="">Select</option>
+    	<?php foreach($vendors as $vendor) { ?>
+    		<option value="<?php echo $vendor['id']; ?>"><?php echo $vendor['name']; ?></option>
+    	<?php } ?>
+    </select>
+    <input type="submit" name="submit" value="Send custom email" />
+</div>
 <h3>Resume List</h3>
 <div><label for="skills">Skills</label>
 <select required id="skills" name="skills[]" multiple="multiple">
@@ -160,8 +229,8 @@ if(!empty($_POST['submit'])) {
 	<option value="Updated by Admin">Updated by Admin</option>
 </select>
 <label for="preferredLocation">Salary Range (Lacs)</label>
-<input name="salaryFrom" id="salaryFrom" type="text" placeholder="From" value="<?php echo $_POST['salaryFrom']; ?>" />
-<input name="salaryTo" id="salaryTo" type="text" placeholder="To" value="<?php echo $_POST['salaryTo']; ?>" />
+<input name="salaryFrom" id="salaryFrom" type="text" placeholder="From" value="<?php echo !empty($_POST['salaryFrom']) ? $_POST['salaryFrom'] : ''; ?>" />
+<input name="salaryTo" id="salaryTo" type="text" placeholder="To" value="<?php echo !empty($_POST['salaryTo']) ? $_POST['salaryTo'] : ''; ?>" />
 </div>
 <div><input type="submit" name="submit" value="Search" /><input type="submit" name="submit" value="Reset" /></div>
 </form>
