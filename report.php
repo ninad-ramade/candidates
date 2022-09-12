@@ -112,7 +112,7 @@ function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
     $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . 'apply.php?id=' . base64_encode($applicationId) . '" target="blank">Apply Now</a><br/><br/>Thanks<br/><br/>RT Jobs';
     $mail->MsgHTML($content);
     if(!$mail->Send()) {
-        return false;
+        return $mail->ErrorInfo;
     }
     return true;
 }
@@ -153,8 +153,9 @@ if(!empty($_POST['submit'])) {
                 }
                 $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentOn, subject, status) VALUES (" . $_POST['vendor'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                 if($db->query($sql) === TRUE) {
-                    if(!sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $_POST['customBody'])) {
-                        $failedEmails[] = $candidate['email'];
+                    $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $_POST['customBody']);
+                    if($customEmailResponse !== true) {
+                        $failedEmails[] = $candidate['email'] . ' Error: ' . $customEmailResponse;
                     }
                 }
             }
