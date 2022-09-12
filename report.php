@@ -68,7 +68,7 @@ function getVendors() {
     }
     return $vendors;
 }
-function sendEmail($email, $name, $id) {
+function sendEmail($email, $name, $id, $body) {
     $fromEmail = 'rapid.jobs12@gmail.com';
     $mail = new PHPMailer();
     $mail->IsSMTP();
@@ -85,7 +85,7 @@ function sendEmail($email, $name, $id) {
     $mail->setFrom($fromEmail, "RTJobs");
     $mail->AddReplyTo($fromEmail, "RTJobs");
     $mail->Subject = "RT Jobs Candidature";
-    $content = 'Hi, ' . $name . ',<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
+    $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
     $mail->MsgHTML($content);
     if(!$mail->Send()) {
         return false;
@@ -133,7 +133,7 @@ if(!empty($_POST['submit'])) {
         $candidates = getCandidates($data);
         if($_POST['submit'] == 'Send email to candidates to update') {
             foreach ($candidates as $candidate) {
-                if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'])) {
+                if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody'])) {
                     $db = new mysqli(servername, username, password, dbname);
                     $sql = "UPDATE candidates SET status = 'Email sent' WHERE id = " . $candidate['id'];
                     $db->query($sql);
@@ -183,11 +183,19 @@ function validateCustomEmail(e) {
 	}
 	return true;
 }
+function validateEmail(e) {
+	if(document.getElementById("customBody").value == '') {
+		alert('Please enter email body.');
+		e.preventDefault();
+		return false;
+	}
+	return true;
+}
 </script>
 <a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
 
 <form action="report.php" method="post">
-<input type="submit" name="submit" value="Send email to candidates to update" />
+<input type="submit" name="submit" onclick="validateEmail(event)" value="Send email to candidates to update" />
 <div>
     <textarea id="customBody" name="customBody" placeholder="Email body"></textarea>
     <select id="vendor" name="vendor">
