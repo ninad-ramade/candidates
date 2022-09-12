@@ -141,6 +141,7 @@ if(!empty($_POST['submit'])) {
             }
             echo 'Email sent successfully';
         } else if($_POST['submit'] == 'Send custom email') {
+            $failedEmails = [];
             foreach ($candidates as $candidate) {
                 $db = new mysqli(servername, username, password, dbname);
                 $subject = "Profile for " . implode(", ", $data['skills']);
@@ -153,12 +154,14 @@ if(!empty($_POST['submit'])) {
                 $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentOn, subject, status) VALUES (" . $_POST['vendor'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                 if($db->query($sql) === TRUE) {
                     if(!sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $_POST['customBody'])) {
-                        echo 'Could not send the email';
-                    }
-                    else {
-                        echo 'Custom email sent successfully';
+                        $failedEmails[] = $candidate['email'];
                     }
                 }
+            }
+            if(!empty($failedEmails)) {
+                echo 'Could not send custom email to ' . implode(", ", $failedEmails);
+            } else {
+                echo 'All custom emails sent successfully';
             }
         }
     }
