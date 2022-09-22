@@ -1,0 +1,34 @@
+.loginWrapper {
+    margin-left: 38%;
+    margin-top: 20px;
+    border:1px solid #ddd;
+    border-radius: 4px;
+    padding: 50px;
+}
+.loginBrand {
+	text-align: center;
+    margin-top: 10%;
+    font-size: 24px;
+    font-weight: bold;
+}
+.navbar a {
+	color: white!important;
+}
+.candidateForm div {
+	margin-bottom: 10px;
+}
+#salaryTo {
+	margin-top: 5px;
+}
+.actionRow {
+	margin-top: 5px;
+}
+table {
+	font-size: 13px;
+}
+table tr {
+	border-bottom: 1px solid #ddd;
+}
+table td, th {
+	padding: 4px;
+}

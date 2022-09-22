@@ -1,6 +1,7 @@
 <?php
 //ini_set('display_errors', 1);
 include_once 'config.php';
+session_start();
 $resumeDir = 'profiles/unprocessed';
 $processedResumeDir = 'profiles/processed';
 $files = array_diff(scandir($resumeDir), ['.', '..']);
@@ -17,6 +18,7 @@ function getSkills() {
     while($row = $result->fetch_assoc()) {
         $skills[] = $row;
     }
+    $db->close();
     return $skills;
 }
 function read_docx($filename){
@@ -145,12 +147,22 @@ if($_POST['submit'] == 'Upload and process') {
     }
     $db->close();
 }
+include 'header.php';
+include 'menu.php';
  ?>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Resume List</a>
+<h3>Extract Profiles</h3>
 <form action="extract.php" method="post" enctype="multipart/form-data">
-	<label>Upload to unprocessed</label> <input type="file" name="resume" />
-	<input type="submit" name="submit" value="Upload and process"> (Only doc, docx and zip allowed)
+	<div class="row">
+		<div class="col-lg-1">
+			<label>Upload to unprocessed</label>
+		</div>
+		<div class="col-lg-2">
+			<input type="file" name="resume" class="form-control" />
+		</div>
+		<div class="col-lg-5">
+			<input type="submit" name="submit" class="btn btn-primary" value="Upload and process"> (Only doc, docx and zip allowed)
+		</div>
+	</div>
 </form>
 <!-- <form action="extract.php" method="post">
 	<input type="submit" name="submit" value="Start Extraction">
@@ -170,3 +182,4 @@ if($_POST['submit'] == 'Upload and process') {
 <td><?php echo !empty($file['status']) ? $file['status'] : 'Pending'; ?></td></tr>
 <?php } ?>
 </table>
+<?php include 'footer.php'; ?>

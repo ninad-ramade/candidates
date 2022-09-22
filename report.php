@@ -8,11 +8,20 @@ require_once 'vendor/autoload.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
+session_start();
 function getCandidates($filterData = []) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM candidates";
     global $where;
     $where = [];
+    if(!empty($filterData['skills'])) {
+        $skills = getSkills($filterData['skills']);
+        $filterData['skills'] = array_column($skills, 'skill');
+    }
+    if(!empty($filterData['subskills'])) {
+        $skills = getSkills($filterData['subskills']);
+        $filterData['subskills'] = array_column($skills, 'skill');
+    }
     if(!empty(array_filter($filterData))) {
         foreach($filterData as $filter => $value) {
             $innerWhere = [];
@@ -40,11 +49,16 @@ function getCandidates($filterData = []) {
     while($row = $result->fetch_assoc()) {
         $candidates[] = $row;
     }
+    $db->close();
     return $candidates;
 }
-function getSkills() {
+function getSkills($groupParent = null) {
     $db = new mysqli(servername, username, password, dbname);
-    $sql = "SELECT * FROM skills ORDER BY skill ASC";
+    $sql = "SELECT * FROM skills";
+    if(!empty($groupParent)) {
+        $sql .= " WHERE groupParent IN (" . implode(",", array_filter($groupParent)) . ")";
+    }
+    $sql .= " ORDER BY skill ASC";
     $result = $db->query($sql);
     $skills = [];
     if ($result->num_rows < 1) {
@@ -53,6 +67,7 @@ function getSkills() {
     while($row = $result->fetch_assoc()) {
         $skills[] = $row;
     }
+    $db->close();
     return $skills;
 }
 function getVendors() {
@@ -66,10 +81,11 @@ function getVendors() {
     while($row = $result->fetch_assoc()) {
         $vendors[] = $row;
     }
+    $db->close();
     return $vendors;
 }
 function sendEmail($email, $name, $id, $body) {
-    $fromEmail = 'rapid.jobs12@gmail.com';
+    $fromEmail = $_SESSION['user']['email'];
     $mail = new PHPMailer();
     $mail->IsSMTP();
     $mail->Mailer = "smtp";
@@ -93,7 +109,7 @@ function sendEmail($email, $name, $id, $body) {
     return true;
 }
 function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
-    $fromEmail = 'rapid.jobs12@gmail.com';
+    $fromEmail = $_SESSION['user']['email'];
     $mail = new PHPMailer();
     $mail->IsSMTP();
     $mail->Mailer = "smtp";
@@ -130,11 +146,11 @@ if(!empty($_POST['submit'])) {
         unset($data['submit']);
         unset($data['customBody']);
         unset($data['vendor']);
+        $db = new mysqli(servername, username, password, dbname);
         $candidates = getCandidates($data);
         if($_POST['submit'] == 'Send email to candidates to update') {
             foreach ($candidates as $candidate) {
                 if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody'])) {
-                    $db = new mysqli(servername, username, password, dbname);
                     $sql = "UPDATE candidates SET status = 'Email sent' WHERE id = " . $candidate['id'];
                     $db->query($sql);
                 }
@@ -143,7 +159,6 @@ if(!empty($_POST['submit'])) {
         } else if($_POST['submit'] == 'Send custom email') {
             $failedEmails = [];
             foreach ($candidates as $candidate) {
-                $db = new mysqli(servername, username, password, dbname);
                 $subject = "Profile for " . implode(", ", $data['skills']);
                 if(!empty($data['overallExperience'])) {
                     $subject .= " with " . implode(", ", $data['overallExperience']) . " Years experience";
@@ -165,6 +180,7 @@ if(!empty($_POST['submit'])) {
                 echo 'All custom emails sent successfully';
             }
         }
+        $db->close();
     }
     $columns = !empty($candidates) ? array_keys($candidates[0]) : [];
 }
@@ -192,75 +208,102 @@ function validateEmail(e) {
 	return true;
 }
 </script>
-<a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl; ?>">Resume Form</a>
+<?php 
+include 'header.php';
+include 'menu.php'; ?>
 
 <form action="report.php" method="post">
-<input type="submit" name="submit" onclick="validateEmail(event)" value="Send email to candidates to update" />
-<div>
-    <textarea id="customBody" name="customBody" placeholder="Email body"></textarea>
-    <select id="vendor" name="vendor">
-    	<option value="">Select</option>
-    	<?php foreach($vendors as $vendor) { ?>
-    		<option value="<?php echo $vendor['id']; ?>"><?php echo $vendor['name']; ?></option>
-    	<?php } ?>
-    </select>
-    <input type="submit" name="submit" onclick="validateCustomEmail(event)" value="Send custom email" />
-</div>
+	<div class="row">
+        <div class="col-lg-2">
+            <textarea id="customBody" name="customBody" class="form-control" placeholder="Email body"></textarea>
+       	</div>
+       	<div class="col-lg-2">
+            <select id="vendor" name="vendor" class="form-control">
+            	<option value="">Select</option>
+            	<?php foreach($vendors as $vendor) { ?>
+            		<option value="<?php echo $vendor['id']; ?>"><?php echo $vendor['name']; ?></option>
+            	<?php } ?>
+            </select>
+       	</div>
+       	<div class="col-lg-4">
+            <input type="submit" name="submit" class="btn btn-primary" onclick="validateCustomEmail(event)" value="Send custom email" />
+            <input type="submit" name="submit" class="btn btn-primary" onclick="validateEmail(event)" value="Send email to candidates to update" />
+        </div>
+  	</div>
 <h3>Resume List</h3>
-<div><label for="skills">Skills</label>
-<select required id="skills" name="skills[]" multiple="multiple">
-<option value="">Select</option>
-<?php foreach($skills as $eachskill) { ?>
-<option value="<?php echo $eachskill['skill']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['skill'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
-<?php } ?>
-</select>
-<label for="subskills">Sub Skills</label>
-<select id="subskills" name="subskills[]" multiple="multiple">
-<option value="">Select</option>
-<?php foreach($skills as $eachskill) { ?>
-<option value="<?php echo $eachskill['skill']; ?>" <?php echo !empty($_POST['subskills']) ? (in_array($eachskill['skill'], $_POST['subskills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
-<?php } ?>
-</select>
-<label for="overallExperience">Overall Exp</label>
-<select id="overallExperience" name="overallExperience[]" multiple="multiple">
-<option value="">Select</option>
-<option value="0-3" <?php echo !empty($_POST['overallExperience']) ? (in_array('0-3', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>0-3</option>
-<option value="4-7" <?php echo !empty($_POST['overallExperience']) ? (in_array('4-7', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>4-7</option>
-<option value="8-10" <?php echo !empty($_POST['overallExperience']) ? (in_array('8-10', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>8-10</option>
-<option value=">10" <?php echo !empty($_POST['overallExperience']) ? (in_array('>10', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>>10</option>
-</select>
-
-<label for="relevantExperience">Relevant Exp</label>
-<select id="relevantExperience" name="relevantExperience[]" multiple="multiple">
-<option value="">Select</option>
-<option value="0-3" <?php echo !empty($_POST['relevantExperience']) ? (in_array('0-3', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>0-3</option>
-<option value="4-7" <?php echo !empty($_POST['relevantExperience']) ? (in_array('4-7', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>4-7</option>
-<option value="8-10" <?php echo !empty($_POST['relevantExperience']) ? (in_array('8-10', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>8-10</option>
-<option value=">10" <?php echo !empty($_POST['relevantExperience']) ? (in_array('>10', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>>10</option>
-</select>
-
-<label for="preferredLocation">Preferred Loc</label>
-<select id="preferredLocation" name="preferredLocation[]" multiple="multiple">
-<option value="">Select</option>
-<?php foreach($locations as $location) { ?>
-<option value="<?php echo $location; ?>" <?php echo !empty($_POST['preferredLocation']) ? (in_array($location, $_POST['preferredLocation']) ? 'selected="selected"' : '') : ''; ?>><?php echo $location; ?></option>
-<?php } ?>
-<option value="">Any</option>
-</select>
-<label for="preferredLocation">Status</label>
-<select id="status" name="status[]" multiple="multiple">
-	<option value="">Select</option>
-	<option value="Created">Created</option>
-	<option value="Email sent">Email sent</option>
-	<option value="Updated by Candidate">Updated by Candidate</option>
-	<option value="Updated by Admin">Updated by Admin</option>
-</select>
-<label for="preferredLocation">Salary Range (Lacs)</label>
-<input name="salaryFrom" id="salaryFrom" type="text" placeholder="From" value="<?php echo !empty($_POST['salaryFrom']) ? $_POST['salaryFrom'] : ''; ?>" />
-<input name="salaryTo" id="salaryTo" type="text" placeholder="To" value="<?php echo !empty($_POST['salaryTo']) ? $_POST['salaryTo'] : ''; ?>" />
+<div class="row">
+	<div class="col-lg-2">
+    	<label for="skills">Skills</label>
+        <select required id="skills" name="skills[]" multiple="multiple" class="form-control">
+        <option value="">Select</option>
+        <?php foreach($skills as $eachskill) { ?>
+        <option value="<?php echo $eachskill['groupParent']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['groupParent'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
+        <?php } ?>
+        </select>
+   	</div>
+	<div class="col-lg-2">
+    	<label for="subskills">Sub Skills</label>
+        <select id="subskills" name="subskills[]" multiple="multiple" class="form-control">
+        <option value="">Select</option>
+        <?php foreach($skills as $eachskill) { ?>
+        <option value="<?php echo $eachskill['groupParent']; ?>" <?php echo !empty($_POST['subskills']) ? (in_array($eachskill['groupParent'], $_POST['subskills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
+        <?php } ?>
+        </select>
+   	</div>
+	<div class="col-lg-1">
+		<label for="overallExperience">Overall Exp</label>
+        <select id="overallExperience" name="overallExperience[]" multiple="multiple" class="form-control">
+        <option value="">Select</option>
+        <option value="0-3" <?php echo !empty($_POST['overallExperience']) ? (in_array('0-3', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>0-3</option>
+        <option value="4-7" <?php echo !empty($_POST['overallExperience']) ? (in_array('4-7', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>4-7</option>
+        <option value="8-10" <?php echo !empty($_POST['overallExperience']) ? (in_array('8-10', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>8-10</option>
+        <option value=">10" <?php echo !empty($_POST['overallExperience']) ? (in_array('>10', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>>10</option>
+        </select>
+   	</div>
+	<div class="col-lg-1">
+        <label for="relevantExperience">Relevant Exp</label>
+        <select id="relevantExperience" name="relevantExperience[]" multiple="multiple" class="form-control">
+        <option value="">Select</option>
+        <option value="0-3" <?php echo !empty($_POST['relevantExperience']) ? (in_array('0-3', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>0-3</option>
+        <option value="4-7" <?php echo !empty($_POST['relevantExperience']) ? (in_array('4-7', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>4-7</option>
+        <option value="8-10" <?php echo !empty($_POST['relevantExperience']) ? (in_array('8-10', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>8-10</option>
+        <option value=">10" <?php echo !empty($_POST['relevantExperience']) ? (in_array('>10', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>>10</option>
+        </select>
+	</div>
+	<div class="col-lg-1">
+		<label for="preferredLocation">Preferred Loc</label>
+        <select id="preferredLocation" name="preferredLocation[]" multiple="multiple" class="form-control">
+        <option value="">Select</option>
+        <?php foreach($locations as $location) { ?>
+        <option value="<?php echo $location; ?>" <?php echo !empty($_POST['preferredLocation']) ? (in_array($location, $_POST['preferredLocation']) ? 'selected="selected"' : '') : ''; ?>><?php echo $location; ?></option>
+        <?php } ?>
+        <option value="">Any</option>
+        </select>
+  	</div>
+	<div class="col-lg-2">
+		<label for="preferredLocation">Status</label>
+    	<select id="status" name="status[]" multiple="multiple" class="form-control">
+    	<option value="">Select</option>
+    	<option value="Created">Created</option>
+    	<option value="Email sent">Email sent</option>
+    	<option value="Updated by Candidate">Updated by Candidate</option>
+    	<option value="Updated by Admin">Updated by Admin</option>
+    	</select>
+  	</div>
+	<div class="col-lg-2">
+    	<label for="preferredLocation">Salary Range (Lacs)</label>
+    	<input name="salaryFrom" id="salaryFrom" class="form-control" type="text" placeholder="From" value="<?php echo !empty($_POST['salaryFrom']) ? $_POST['salaryFrom'] : ''; ?>" />
+		<input name="salaryTo" id="salaryTo" class="form-control" type="text" placeholder="To" value="<?php echo !empty($_POST['salaryTo']) ? $_POST['salaryTo'] : ''; ?>" />
+	</div>
 </div>
-<div><input type="submit" name="submit" value="Search" /><input type="submit" name="submit" value="Reset" /></div>
+<div class="row actionRow">
+	<div class="col-lg-2">
+		<input type="submit" name="submit" class="btn btn-primary" value="Search" />
+		<input type="submit" name="submit" class="btn btn-primary" value="Reset" />
+	</div>
+</div>
 </form>
+<div class="row">
 <table>
 <tr>
 	<?php foreach($columns as $column){ ?>
@@ -278,7 +321,9 @@ function validateEmail(e) {
 	}
     ?></td>
 	<?php } ?>
-	<td><a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . '?id=' . base64_encode($candidate['id']); ?>" class="button">Edit</a></td>
+	<td><a class="btn btn-primary" href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . '?id=' . base64_encode($candidate['id']); ?>" class="button">Edit</a></td>
 </tr>
 <?php } ?>
 </table>
+</div>
+<?php include 'footer.php'; ?>
