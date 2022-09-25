@@ -16,10 +16,12 @@ function getCandidates($filterData = []) {
     $where = [];
     if(!empty($filterData['skills'])) {
         $skills = getSkills($filterData['skills']);
+        $skills = getSkills(null, array_column($skills, 'groupParent'));
         $filterData['skills'] = array_column($skills, 'skill');
     }
     if(!empty($filterData['subskills'])) {
         $skills = getSkills($filterData['subskills']);
+        $skills = getSkills(null, array_column($skills, 'groupParent'));
         $filterData['subskills'] = array_column($skills, 'skill');
     }
     if(!empty(array_filter($filterData))) {
@@ -52,9 +54,12 @@ function getCandidates($filterData = []) {
     $db->close();
     return $candidates;
 }
-function getSkills($groupParent = null) {
+function getSkills($id = null, $groupParent = null) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM skills";
+    if(!empty($id)) {
+        $sql .= " WHERE id IN (" . implode(",", array_filter($id)) . ")";
+    }
     if(!empty($groupParent)) {
         $sql .= " WHERE groupParent IN (" . implode(",", array_filter($groupParent)) . ")";
     }
@@ -237,7 +242,7 @@ include 'menu.php'; ?>
         <select required id="skills" name="skills[]" multiple="multiple" class="form-control">
         <option value="">Select</option>
         <?php foreach($skills as $eachskill) { ?>
-        <option value="<?php echo $eachskill['groupParent']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['groupParent'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
+        <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['groupParent'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
         <?php } ?>
         </select>
    	</div>
@@ -246,7 +251,7 @@ include 'menu.php'; ?>
         <select id="subskills" name="subskills[]" multiple="multiple" class="form-control">
         <option value="">Select</option>
         <?php foreach($skills as $eachskill) { ?>
-        <option value="<?php echo $eachskill['groupParent']; ?>" <?php echo !empty($_POST['subskills']) ? (in_array($eachskill['groupParent'], $_POST['subskills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
+        <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($_POST['subskills']) ? (in_array($eachskill['groupParent'], $_POST['subskills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
         <?php } ?>
         </select>
    	</div>
