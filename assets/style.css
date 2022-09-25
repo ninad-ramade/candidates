@@ -32,3 +32,19 @@ table tr {
 table td, th {
 	padding: 4px;
 }
+.checkboxScroll {
+	max-height: 250px;
+    overflow-y: scroll;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    
+}
+.checkboxScroll ul {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+.vservice-ul {
+	padding-left: 20px!important;
+	display: none;
+}

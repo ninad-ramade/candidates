@@ -30,7 +30,7 @@ include 'header.php';
 ?>
 <div class="container-fluid">
 <div class="row">
-	<div class="loginBrand">Rapid Jobs</div>
+	<div class="loginBrand">RAPID Jobs</div>
     <div class="loginWrapper col-lg-3">
         <form method="post" action="login.php">
             <div class="form-group">

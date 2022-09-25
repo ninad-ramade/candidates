@@ -9,6 +9,15 @@ $education = ['B.E./B.Tech', 'B.Sc', 'M.Tech', 'M.Com', 'B.Com', 'BCA', 'MBA'];
 $skills = getSkills();
 $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
 $companies = ['Deloitte', 'TCS', 'CAP GEMINI', 'Tech Mahindra', 'HCL', 'WIPRO', 'LUMEN', 'EVOKE TECHNOLOGIES', 'MPHASIS', 'L & T', 'Hexaware', 'None'];
+$services = getServices();
+$vservices = getVendorServices();
+foreach($services as $key => &$service) {
+    foreach($vservices as $vkey => $vservice) {
+        if($service['serviceId'] == $vservice['serviceId']) {
+            $service['vservices'][] = $vservice;
+        }
+    }
+}
 function getSkills($skill = null) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM skills";
@@ -28,19 +37,63 @@ function getSkills($skill = null) {
     $db->close();
     return $skills;
 }
+function getServices() {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM services ORDER by serviceName ASC";
+    $result = $db->query($sql);
+    $services = [];
+    if ($result->num_rows < 1) {
+        return $services;
+    }
+    while($row = $result->fetch_assoc()) {
+        $services[] = $row;
+    }
+    $db->close();
+    return $services;
+}
+function getVendorServices() {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM vservices ORDER by vendorServiceName ASC";
+    $result = $db->query($sql);
+    $services = [];
+    if ($result->num_rows < 1) {
+        return $services;
+    }
+    while($row = $result->fetch_assoc()) {
+        $services[] = $row;
+    }
+    $db->close();
+    return $services;
+}
 function getCandidate($id) {
     $db = new mysqli(servername, username, password, dbname);
-    $sql = "SELECT * FROM candidates WHERE id = " . $id;
+    $sql = "SELECT * FROM candidates LEFT JOIN availed_services on candidates.id = availed_services.candidateId WHERE id = " . $id;
     $result = $db->query($sql);
-    $candidate = mysqli_fetch_assoc($result);
+    $i = 0;
+    while($row = $result->fetch_assoc()) {
+        if($i == 0) {
+            $candidate = $row;
+        }
+        $candidate['services'][] = $row['serviceId'];
+        $candidate['vservices'][] = $row['vserviceId'];
+        $i++;
+    }
     $db->close();
     return $candidate;
 }
 function getCandidateByEmail($email) {
     $db = new mysqli(servername, username, password, dbname);
-    $sql = "SELECT * FROM candidates WHERE email = '" . $email . "'";
+    $sql = "SELECT * FROM candidates LEFT JOIN availed_services on candidates.id = availed_services.candidateId WHERE email = '" . $email . "'";
     $result = $db->query($sql);
-    $candidate = mysqli_fetch_assoc($result);
+    $i = 0;
+    while($row = $result->fetch_assoc()) {
+        if($i == 0) {
+            $candidate = $row;
+        }
+        $candidate['services'][] = $row['serviceId'];
+        $candidate['vservices'][] = $row['vserviceId'];
+        $i++;
+    }
     $db->close();
     return $candidate;
 }
@@ -61,8 +114,31 @@ function saveSkill($skill) {
     }
     $db->close();
 }
-
+function buildServicesData($data, $candidateId) {
+    $availedServices = [];
+    if(!empty($data['services'])) {
+        foreach($data['services'] as $service) {
+            if(!empty($data['vservices'][$service])) {
+                foreach($data['vservices'][$service] as $vservice) {
+                    $serviceData = [];
+                    $serviceData['candidateId'] = $candidateId;
+                    $serviceData['serviceId'] = $service;
+                    $serviceData['vserviceId'] = $vservice;
+                    $availedServices[] = $serviceData;
+                }
+            } else {
+                $serviceData = [];
+                $serviceData['candidateId'] = $candidateId;
+                $serviceData['serviceId'] = $service;
+                $serviceData['vserviceId'] = null;
+                $availedServices[] = $serviceData;
+            }
+        }
+    }
+    return $availedServices;
+}
 function saveCandidateData($data, $accessBy) {
+    $postData = $data;
     $data['education'] = !empty($data['education']) ? implode(', ', $data['education']) : '';
     $data['skills'] = !empty($data['skills']) ? implode(', ', $data['skills']) : '';
     $data['subskills'] = !empty($data['subskills']) ? implode(', ', $data['subskills']) : '';
@@ -74,6 +150,8 @@ function saveCandidateData($data, $accessBy) {
     if(empty($data['resume'])) {
         unset($data['resume']);
     }
+    unset($data['services']);
+    unset($data['vservices']);
     if(!empty($data['candidateId'])) {
         $sql = 'UPDATE candidates SET ';
         $set = [];
@@ -90,6 +168,19 @@ function saveCandidateData($data, $accessBy) {
     }
     
     if ($db->query($sql) === TRUE) {
+        $candidateId = !empty($data['candidateId']) ? $data['candidateId'] : $db->insert_id;
+        $servicesData = buildServicesData($postData, $candidateId);
+        $sql = "DELETE FROM availed_services WHERE candidateId = " . $candidateId;
+        $db->query($sql);
+        if(!empty($servicesData)) {
+            $sql = "INSERT INTO availed_services (candidateId, serviceId, vserviceId) VALUES ";
+            $serviceValues = [];
+            foreach($servicesData as $sdata) {
+                $serviceValues[] = '(' .$sdata['candidateId']. ', ' . $sdata['serviceId'] . ', ' . (!empty($sdata['vserviceId']) ? $sdata['vserviceId'] : 'NULL') . ')';
+            }
+            $sql .= implode(", ", $serviceValues);
+            $db->query($sql);
+        }
         echo "New record " . (!empty($data['candidateId']) ? 'updated' : 'created') . " successfully";
     } else {
         echo "Error: " . $sql . "<br>" . $db->error;
@@ -127,6 +218,7 @@ include 'header.php';
 include 'menu.php';
 ?>
 <script>
+var discountSelected = 0;
 function getCandidate(email) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", 'index.php', true);
@@ -152,6 +244,17 @@ function getCandidate(email) {
             	var resumeFile = resumeParts[resumeParts.length - 1];
             	resumeElement.innerHTML = resumeFile;
             	document.getElementById('resume').after(resumeElement);
+            } else if(e[0] == 'services') {
+            	e[1].forEach(function(value){
+            		document.querySelector("#service_" + value).setAttribute('checked', 'checked');
+            	});
+            } else if(e[0] == 'vservices') {
+            	e[1].forEach(function(value){
+            		if(value != 0 && value != null) {
+            			document.querySelector("#vservice_" + value).setAttribute('checked', 'checked');
+            			document.querySelector("#vservice_" + value).parentNode.parentNode.parentNode.style.display = 'block';
+            		}
+            	});
             }
             else if (document.getElementById(e[0]) != null){
             	document.getElementById(e[0]).value = e[1];
@@ -160,6 +263,37 @@ function getCandidate(email) {
         }
 	}
 	xhr.send("email=" + email);
+}
+function displayDrilldown(id, checked, discountRemaining) {
+	if(discountRemaining > 0) {
+		if(checked) {
+			discountSelected++;
+		} else {
+			discountSelected--;
+		}
+	}
+	var discounted = document.querySelectorAll('.discounted');
+	if(discountSelected >= 2) {
+		discounted.forEach(function(e){
+			if(e.checked == false) {
+				e.setAttribute('disabled', 'disabled');
+			}
+		});
+	} else {
+		discounted.forEach(function(e){
+			if(e.checked == false) {
+				e.removeAttribute('disabled', 'disabled');
+			}
+		});
+	}
+ 	var drilldownUl = document.querySelector("#" + id).parentNode.parentNode.children[1];
+ 	if(typeof drilldownUl != 'undefined') {
+     	if(drilldownUl.style.display == 'block') {
+    		drilldownUl.style.display = 'none';
+    	} else {
+    		drilldownUl.style.display = 'block';
+    	}
+    }
 }
 </script>
 <?php if(empty($email)){ ?>
@@ -368,6 +502,27 @@ function getCandidate(email) {
         <?php if(!empty($candidateDetails) && !empty($candidateDetails['resume'])) { ?>
         <a href="<?php echo $candidateDetails['resume']; ?>" target="blank" ><?php echo pathinfo($candidateDetails['resume'], PATHINFO_BASENAME); ?></a>
         <?php } ?>
+   	</div>
+</div>
+
+<div class="row">
+	<div class="col-lg-1">
+		<label class="control-label" for="resume">Services</label>
+	</div>
+	<div class="col-lg-3 checkboxScroll">
+	<ul>
+	<?php foreach($services as $key => $service) { ?>
+	<li><label class="control-label"><input type="checkbox" name="services[]" class="<?php echo ($service['tcount'] - $service['scount']) > 0 ? 'discounted' : ''; ?>" onchange="displayDrilldown(this.id, this.checked, '<?php echo $service['tcount'] - $service['scount']; ?>')" id="service_<?php echo $service['serviceId']; ?>" value="<?php echo $service['serviceId']; ?>" <?php echo in_array($service['serviceId'], $candidateDetails['services']) ? 'checked="checked"' : ''; ?> /> <?php echo $service['serviceName']; ?></label>
+	<?php if($service['drilldown'] == 'Y') { ?>
+		<ul class="vservice-ul" <?php echo in_array($service['serviceId'], $candidateDetails['services']) ? 'style="display:block;"' : ''; ?>>
+		<?php foreach($service['vservices'] as $key => $vservice) {?>
+			<li><label class="control-label"><input type="checkbox" name="vservices[<?php echo $service['serviceId'];?>][]" id="vservice_<?php echo $vservice['vserviceId']; ?>" value="<?php echo $vservice['vserviceId']?>" <?php echo in_array($vservice['vserviceId'], $candidateDetails['vservices']) ? 'checked="checked"' : ''; ?> /> <?php echo $vservice['vendorServiceName']; ?></label></li>
+		<?php } ?>
+		</ul>
+	<?php } ?>
+	</li>
+	<?php } ?>
+	</ul>
    	</div>
 </div>
 <input type="hidden" id="id" name="candidateId" value="<?php echo !empty($candidateDetails) ? $candidateDetails['id'] : ''; ?>" />

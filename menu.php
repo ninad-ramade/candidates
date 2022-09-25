@@ -8,7 +8,7 @@ if(empty($email)) {
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand" href="/">Rapid Jobs</a>
+      <a class="navbar-brand" href="/">RAPID Jobs</a>
     </div>
     <ul class="nav navbar-nav">
       	<li><a href="/">Candidate Form</a></li>
