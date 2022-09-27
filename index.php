@@ -141,7 +141,7 @@ function saveCandidateData($data, $accessBy) {
     $postData = $data;
     $data['education'] = !empty($data['education']) ? implode(', ', $data['education']) : '';
     $data['skills'] = !empty($data['skills']) ? implode(', ', $data['skills']) : '';
-    $data['subskills'] = !empty($data['subskills']) ? implode(', ', $data['subskills']) : '';
+    //$data['subskills'] = !empty($data['subskills']) ? implode(', ', $data['subskills']) : '';
     $data['currentLocation'] = !empty($data['currentLocation']) ? implode(', ', $data['currentLocation']) : '';
     $data['preferredLocation'] = !empty($data['preferredLocation']) ? implode(', ', $data['preferredLocation']) : '';
     $data['status'] = !empty($data['candidateId']) ? 'Updated by ' . $accessBy : 'Created';
@@ -363,6 +363,7 @@ function displayDrilldown(id, checked, discountRemaining) {
         </select>
   	</div>
 </div>
+<?php /* ?>
 <div class="row">
 	<div class="col-lg-1">
 		<label class="control-label" for="subskills">Sub Skills</label>
@@ -376,7 +377,7 @@ function displayDrilldown(id, checked, discountRemaining) {
         </select>
   	</div>
 </div>
-
+<?php */ ?>
 <div class="row">
 	<div class="col-lg-1">
 		<label class="control-label" for="overallExperience">Overall Exp</label>

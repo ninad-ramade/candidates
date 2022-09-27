@@ -19,11 +19,11 @@ function getCandidates($filterData = []) {
         $skills = getSkills(null, array_column($skills, 'groupParent'));
         $filterData['skills'] = array_column($skills, 'skill');
     }
-    if(!empty($filterData['subskills'])) {
+    /* if(!empty($filterData['subskills'])) {
         $skills = getSkills($filterData['subskills']);
         $skills = getSkills(null, array_column($skills, 'groupParent'));
         $filterData['subskills'] = array_column($skills, 'skill');
-    }
+    } */
     if(!empty(array_filter($filterData))) {
         foreach($filterData as $filter => $value) {
             $innerWhere = [];
@@ -246,6 +246,7 @@ include 'menu.php'; ?>
         <?php } ?>
         </select>
    	</div>
+   	<?php /* ?>
 	<div class="col-lg-2">
     	<label for="subskills">Sub Skills</label>
         <select id="subskills" name="subskills[]" multiple="multiple" class="form-control">
@@ -255,6 +256,7 @@ include 'menu.php'; ?>
         <?php } ?>
         </select>
    	</div>
+   	<?php */ ?>
 	<div class="col-lg-1">
 		<label for="overallExperience">Overall Exp</label>
         <select id="overallExperience" name="overallExperience[]" multiple="multiple" class="form-control">

@@ -72,6 +72,14 @@ function getPhoneFromContent($content) {
     $phones = array_filter($phones);
     return !empty($phones) ? $phones[0][0] : '';
 }
+function getLocationsFromContent($content) {
+    $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
+    $resumeLocations = [];
+    foreach($locations as $location) {
+        $resumeLocations[] = !empty(strstr(strtolower($content), strtolower($location))) ? $location : '';
+    }
+    return array_values(array_filter($resumeLocations));
+}
 if($_POST['submit'] == 'Upload and process') {
     $allowedFiles = ['doc', 'docx', 'zip'];
     $_POST['resume'] = '';
@@ -99,7 +107,19 @@ if($_POST['submit'] == 'Upload and process') {
         echo 'Files uploaded successfully. Reloading...';
         header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php');
     }
-} else {
+} else if ($_POST['submit'] == 'Reprocess All') {
+    $processedFiles = array_diff(scandir($processedResumeDir), ['.', '..']);
+    $allowedExtensions = ['doc', 'docx'];
+    foreach($processedFiles as $file) {
+        $ext = pathinfo($file, PATHINFO_EXTENSION);
+        if(!in_array(strtolower($ext), $allowedExtensions)) {
+            continue;
+        }
+        rename($processedResumeDir .'/'. $file, $resumeDir .'/'. $file);
+        header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php');
+    }
+}
+else {
     $db = new mysqli(servername, username, password, dbname);
     $allowedExtensions = ['doc', 'docx'];
     foreach($files as $file) {
@@ -118,6 +138,13 @@ if($_POST['submit'] == 'Upload and process') {
         $email = getEmailFromContent($content);
         $phone = getPhoneFromContent($content);
         $skill = implode(", ", getSkillFromContent($content));
+        $locations = getLocationsFromContent($content);
+        $currentLocation = !empty($locations) ? $locations[0] : '';
+        $preferredLocations = '';
+        if(!empty($locations) && count($locations) > 1) {
+            unset($locations[0]);
+            $preferredLocations = implode(", ", $locations);
+        }
         if(!empty($email)) {
             $name = explode("@", $email);
             $resume = mysqli_real_escape_string($db, "http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file);
@@ -125,9 +152,9 @@ if($_POST['submit'] == 'Upload and process') {
             $result = $db->query($sql);
             $existingCandidate = mysqli_fetch_assoc($result);
             if(!empty($existingCandidate)) {
-                $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skill . "', subskills = '" . $skill . "', resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
+                $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skill . "', subskills = '" . $skill . "', currentLocation = '" . $currentLocation . "', preferredLocation = '" . $preferredLocations . "', resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
             } else {
-                $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skill."', '".$skill."', '" . $resume . "', 'Created')";
+                $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, currentLocation, preferredLocation, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skill."', '".$skill."', '".$currentLocation."', '".$preferredLocations."', '" . $resume . "', 'Created')";
             }
             try {
                 if($db->query($sql) === TRUE) {
@@ -161,6 +188,11 @@ include 'menu.php';
 		</div>
 		<div class="col-lg-5">
 			<input type="submit" name="submit" class="btn btn-primary" value="Upload and process"> (Only doc, docx and zip allowed)
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-2">
+			<input type="submit" name="submit" class="btn btn-primary" value="Reprocess All">
 		</div>
 	</div>
 </form>
