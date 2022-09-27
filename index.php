@@ -352,7 +352,7 @@ function displayDrilldown(id, checked, discountRemaining) {
 </div>
 <div class="row">
 	<div class="col-lg-1">
-		<label class="control-label" for="skills">Skills</label>
+		<label class="control-label" for="skills">Skills/Keywords</label>
 	</div>
 	<div class="col-lg-3">
         <select required id="skills" name="skills[]" class="form-control" multiple="multiple">

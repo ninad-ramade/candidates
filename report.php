@@ -238,7 +238,7 @@ include 'menu.php'; ?>
 <h3>Resume List</h3>
 <div class="row">
 	<div class="col-lg-2">
-    	<label for="skills">Skills</label>
+    	<label for="skills">Skills/Keywords</label>
         <select required id="skills" name="skills[]" multiple="multiple" class="form-control">
         <option value="">Select</option>
         <?php foreach($skills as $eachskill) { ?>

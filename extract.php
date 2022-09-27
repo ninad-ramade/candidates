@@ -168,6 +168,7 @@ else {
         $eachFile['skills'] = $skill;
         $allFiles[] = $eachFile;
     }
+    echo 'Extracted all profiles successfully.';
     $db->close();
 }
 include 'header.php';
