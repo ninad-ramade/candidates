@@ -14,7 +14,7 @@ function getCandidates($filterData = []) {
     $sql = "SELECT * FROM candidates";
     global $where;
     $where = [];
-    if(!empty($filterData['skills'])) {
+    if(!empty(array_filter($filterData['skills']))) {
         $skills = getSkills($filterData['skills']);
         $skills = getSkills(null, array_column($skills, 'groupParent'));
         $filterData['skills'] = array_column($skills, 'skill');

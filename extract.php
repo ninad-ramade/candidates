@@ -140,11 +140,7 @@ else {
         $skill = implode(", ", getSkillFromContent($content));
         $locations = getLocationsFromContent($content);
         $currentLocation = !empty($locations) ? $locations[0] : '';
-        $preferredLocations = '';
-        if(!empty($locations) && count($locations) > 1) {
-            unset($locations[0]);
-            $preferredLocations = implode(", ", $locations);
-        }
+        $preferredLocations = !empty($locations) && count($locations) > 1 ? implode(", ", $locations) : '';
         if(!empty($email)) {
             $name = explode("@", $email);
             $resume = mysqli_real_escape_string($db, "http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file);
