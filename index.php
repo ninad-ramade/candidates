@@ -229,7 +229,7 @@ function getCandidate(email) {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             var candidateData = Object.entries(this.response);
             candidateData.forEach(function(e){
-            if(e[0] == 'skills' || e[0] == 'subskills' || e[0] == 'currentLocation' || e[0] == 'preferredLocation') {
+            if(e[0] == 'skills' || e[0] == 'currentLocation' || e[0] == 'preferredLocation') {
             	var values = e[1].split(", ");
         		values.forEach(function(value){
         			document.querySelector("#" + e[0] + " option[value='" + value + "']").setAttribute("selected", "selected");
@@ -247,7 +247,9 @@ function getCandidate(email) {
             	document.getElementById('resume').after(resumeElement);
             } else if(e[0] == 'services') {
             	e[1].forEach(function(value){
-            		document.querySelector("#service_" + value).setAttribute('checked', 'checked');
+            		if(value != 0 && value != null) {
+            			document.querySelector("#service_" + value).setAttribute('checked', 'checked');
+            		}
             	});
             } else if(e[0] == 'vservices') {
             	e[1].forEach(function(value){
@@ -514,11 +516,11 @@ function displayDrilldown(id, checked, discountRemaining) {
 	<div class="col-lg-3 checkboxScroll">
 	<ul>
 	<?php foreach($services as $key => $service) { ?>
-	<li><label class="control-label"><input type="checkbox" name="services[]" class="<?php echo ($service['tcount'] - $service['scount']) > 0 ? 'discounted' : ''; ?>" onchange="displayDrilldown(this.id, this.checked, '<?php echo $service['tcount'] - $service['scount']; ?>')" id="service_<?php echo $service['serviceId']; ?>" value="<?php echo $service['serviceId']; ?>" <?php echo in_array($service['serviceId'], $candidateDetails['services']) ? 'checked="checked"' : ''; ?> /> <?php echo $service['serviceName']; ?></label>
+	<li><label class="control-label"><input type="checkbox" name="services[]" class="<?php echo ($service['tcount'] - $service['scount']) > 0 ? 'discounted' : ''; ?>" onchange="displayDrilldown(this.id, this.checked, '<?php echo $service['tcount'] - $service['scount']; ?>')" id="service_<?php echo $service['serviceId']; ?>" value="<?php echo $service['serviceId']; ?>" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'checked="checked"' : ''; ?> /> <?php echo $service['serviceName']; ?></label>
 	<?php if($service['drilldown'] == 'Y') { ?>
-		<ul class="vservice-ul" <?php echo in_array($service['serviceId'], $candidateDetails['services']) ? 'style="display:block;"' : ''; ?>>
+		<ul class="vservice-ul" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'style="display:block;"' : ''; ?>>
 		<?php foreach($service['vservices'] as $key => $vservice) {?>
-			<li><label class="control-label"><input type="checkbox" name="vservices[<?php echo $service['serviceId'];?>][]" id="vservice_<?php echo $vservice['vserviceId']; ?>" value="<?php echo $vservice['vserviceId']?>" <?php echo in_array($vservice['vserviceId'], $candidateDetails['vservices']) ? 'checked="checked"' : ''; ?> /> <?php echo $vservice['vendorServiceName']; ?></label></li>
+			<li><label class="control-label"><input type="checkbox" name="vservices[<?php echo $service['serviceId'];?>][]" id="vservice_<?php echo $vservice['vserviceId']; ?>" value="<?php echo $vservice['vserviceId']?>" <?php echo !empty($candidateDetails) && in_array($vservice['vserviceId'], $candidateDetails['vservices']) ? 'checked="checked"' : ''; ?> /> <?php echo $vservice['vendorServiceName']; ?></label></li>
 		<?php } ?>
 		</ul>
 	<?php } ?>

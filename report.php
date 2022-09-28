@@ -50,7 +50,6 @@ function getCandidates($filterData = []) {
     }
     $sr = 1;
     while($row = $result->fetch_assoc()) {
-        unset($row['id']);
         $row = array_merge(['sr' => $sr], $row);
         $candidates[] = $row;
         $sr++;
@@ -318,13 +317,13 @@ include 'menu.php'; ?>
 <div class="row">
 <table>
 <tr>
-	<?php foreach($columns as $column){ ?>
+	<?php foreach($columns as $column){ if($column == 'id') {continue;} ?>
 	<th><?php echo ucwords(strtolower($column)); ?></th>
 	<?php } ?>
 </tr>
 <?php foreach($candidates as $candidate) { ?>
 <tr>
-	<?php foreach($columns as $column){ ?>
+	<?php foreach($columns as $column){ if($column == 'id') {continue;}?>
 	<td><?php 
 	if($column == 'servingNotice') {
 	    echo !empty($candidate[$column]) ? ($candidate[$column] == 1 ? 'Yes' : 'No') : '';
