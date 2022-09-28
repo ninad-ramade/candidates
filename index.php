@@ -84,14 +84,14 @@ function getCandidate($id) {
 }
 function getCandidateByEmail($email) {
     $db = new mysqli(servername, username, password, dbname);
-    $sql = "SELECT * FROM candidates LEFT JOIN availed_services on candidates.id = availed_services.candidateId WHERE email = '" . $email . "'";
+    $sql = "SELECT * FROM candidates LEFT JOIN availed_services on candidates.id = availed_services.candidateId LEFT JOIN services on availed_services.serviceId = services.serviceId WHERE email = '" . $email . "'";
     $result = $db->query($sql);
     $i = 0;
     while($row = $result->fetch_assoc()) {
         if($i == 0) {
             $candidate = $row;
         }
-        $candidate['services'][] = $row['serviceId'];
+        $candidate['services'][] = ['serviceId' => $row['serviceId'], 'discounted' => ($row['tcount'] - $row['scount']) > 0 ? 1 : 0];;
         $candidate['vservices'][] = $row['vserviceId'];
         $i++;
     }
@@ -248,7 +248,10 @@ function getCandidate(email) {
             } else if(e[0] == 'services') {
             	e[1].forEach(function(value){
             		if(value != 0 && value != null) {
-            			document.querySelector("#service_" + value).setAttribute('checked', 'checked');
+            			document.querySelector("#service_" + value.serviceId).setAttribute('checked', 'checked');
+            		}
+            		if(value.discounted == 1) {
+            			discountSelected++;
             		}
             	});
             } else if(e[0] == 'vservices') {
@@ -263,6 +266,14 @@ function getCandidate(email) {
             	document.getElementById(e[0]).value = e[1];
            	}
             });
+            var discounted = document.querySelectorAll('.discounted');
+        	if(discountSelected >= 2) {
+        		discounted.forEach(function(e){
+        			if(e.checked == false) {
+        				e.setAttribute('disabled', 'disabled');
+        			}
+        		});
+        	}
         }
 	}
 	xhr.send("email=" + email);
@@ -316,6 +327,11 @@ function displayDrilldown(id, checked, discountRemaining) {
 <?php } ?>
 <h3>Candidate Info</h3>
 <form method="post" class="candidateForm" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>&m=<?php echo !empty($_GET['m']) ? $_GET['m'] : ''; ?>" enctype="multipart/form-data">
+<div class="row">
+    <div class="col-lg-3">
+    	Press Ctrl and select for multiple options.
+    </div>
+</div>
 <div class="row">
 	<div class="col-lg-1">
 		<label class="control-label" for="email">Email</label>
@@ -511,12 +527,16 @@ function displayDrilldown(id, checked, discountRemaining) {
 
 <div class="row">
 	<div class="col-lg-1">
-		<label class="control-label" for="resume">Services</label>
+		<label class="control-label" for="resume">Services (Only 2 free services)</label>
 	</div>
 	<div class="col-lg-3 checkboxScroll">
 	<ul>
-	<?php foreach($services as $key => $service) { ?>
-	<li><label class="control-label"><input type="checkbox" name="services[]" class="<?php echo ($service['tcount'] - $service['scount']) > 0 ? 'discounted' : ''; ?>" onchange="displayDrilldown(this.id, this.checked, '<?php echo $service['tcount'] - $service['scount']; ?>')" id="service_<?php echo $service['serviceId']; ?>" value="<?php echo $service['serviceId']; ?>" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'checked="checked"' : ''; ?> /> <?php echo $service['serviceName']; ?></label>
+	<?php $discounted = 0; foreach($services as $key => $service) { 
+	    if(!empty($candidateDetails) && ($service['tcount'] - $service['scount'] > 0) && in_array($service['serviceId'], $candidateDetails['services'])) {
+	        $discounted++;
+	    }
+	?>
+	<li><label class="control-label"><input type="checkbox" name="services[]" class="<?php echo ($service['tcount'] - $service['scount']) > 0 ? 'discounted' : ''; ?>" onchange="displayDrilldown(this.id, this.checked, '<?php echo $service['tcount'] - $service['scount']; ?>')" id="service_<?php echo $service['serviceId']; ?>" value="<?php echo $service['serviceId']; ?>" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'checked="checked"' : ''; ?> <?php echo !empty($candidateDetails) && $discounted >= 2 && ($service['tcount'] - $service['scount']) > 0 && !in_array($service['serviceId'], $candidateDetails['services']) ? 'disabled="disabled"' : ''; ?> /> <?php echo $service['serviceName']; ?></label>
 	<?php if($service['drilldown'] == 'Y') { ?>
 		<ul class="vservice-ul" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'style="display:block;"' : ''; ?>>
 		<?php foreach($service['vservices'] as $key => $vservice) {?>
