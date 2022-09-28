@@ -110,7 +110,7 @@ function sendEmail($email, $name, $id, $body) {
     $mail->setFrom($fromEmail, "RTJobs");
     $mail->AddReplyTo($fromEmail, "RTJobs");
     $mail->Subject = "RT Jobs Candidature";
-    $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
+    $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
     $mail->MsgHTML($content);
     if(!$mail->Send()) {
         return false;
@@ -134,7 +134,7 @@ function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
     $mail->setFrom($fromEmail, "RTJobs");
     $mail->AddReplyTo($fromEmail, "RTJobs");
     $mail->Subject = $subject;
-    $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/><a href="http://' . $_SERVER['SERVER_NAME'] . baseurl . 'apply.php?id=' . base64_encode($applicationId) . '" target="blank">Apply Now</a><br/><br/>Thanks<br/><br/>RT Jobs';
+    $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/><a href="' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'apply.php?id=' . base64_encode($applicationId) . '" target="blank">Apply Now</a><br/><br/>Thanks<br/><br/>RT Jobs';
     $mail->MsgHTML($content);
     if(!$mail->Send()) {
         return $mail->ErrorInfo;
@@ -144,11 +144,12 @@ function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
 $candidates = [];
 $skills = getSkills();
 $vendors = getVendors();
+$protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
 $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
 if(!empty($_POST['submit'])) {
     if($_POST['submit'] == 'Reset') {
         $_POST = $data = [];
-        header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php');
+        header('Location: ' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php');
     }
     else {
         $data = $_POST;
@@ -332,7 +333,7 @@ include 'menu.php'; ?>
 	}
     ?></td>
 	<?php } ?>
-	<td><a class="btn btn-primary" href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . '?id=' . base64_encode($candidate['id']); ?>" class="button">Edit</a></td>
+	<td><a class="btn btn-primary" href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . '?id=' . base64_encode($candidate['id']); ?>" class="button">Edit</a></td>
 </tr>
 <?php } ?>
 </table>

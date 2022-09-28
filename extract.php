@@ -6,6 +6,7 @@ $resumeDir = 'profiles/unprocessed';
 $processedResumeDir = 'profiles/processed';
 $files = array_diff(scandir($resumeDir), ['.', '..']);
 $allFiles = [];
+$protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
 
 function getSkills() {
     $db = new mysqli(servername, username, password, dbname);
@@ -105,7 +106,7 @@ if($_POST['submit'] == 'Upload and process') {
             }
         }
         echo 'Files uploaded successfully. Reloading...';
-        header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php');
+        header('Location: ' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php');
     }
 } else if ($_POST['submit'] == 'Reprocess All') {
     $processedFiles = array_diff(scandir($processedResumeDir), ['.', '..']);
@@ -116,7 +117,7 @@ if($_POST['submit'] == 'Upload and process') {
             continue;
         }
         rename($processedResumeDir .'/'. $file, $resumeDir .'/'. $file);
-        header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php');
+        header('Location: ' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php');
     }
 }
 else {
@@ -143,7 +144,7 @@ else {
         $preferredLocations = !empty($locations) && count($locations) > 1 ? implode(", ", $locations) : '';
         if(!empty($email)) {
             $name = explode("@", $email);
-            $resume = mysqli_real_escape_string($db, "http://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file);
+            $resume = mysqli_real_escape_string($db, $protocol . "://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file);
             $sql = "SELECT * FROM candidates WHERE email = '" . $email . "'";
             $result = $db->query($sql);
             $existingCandidate = mysqli_fetch_assoc($result);
@@ -204,7 +205,7 @@ include 'menu.php';
 	<td><strong>Skills</strong></td>
 	<td><strong>Status</strong></td></tr>
 <?php foreach($allFiles as $file) { ?>
-<tr><td><a href="<?php echo 'http://' . $_SERVER['SERVER_NAME'] . baseurl . 'profiles/unprocessed/' .$file['name']; ?>" target="blank"><?php echo $file['name']; ?></a></td>
+<tr><td><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'profiles/unprocessed/' .$file['name']; ?>" target="blank"><?php echo $file['name']; ?></a></td>
 <td><?php echo !empty($file['email']) ? $file['email'] : ''; ?></td>
 <td><?php echo !empty($file['phone']) ? $file['phone'] : ''; ?></td>
 <td><?php echo !empty($file['skills']) ? $file['skills'] : ''; ?></td>
