@@ -182,7 +182,7 @@ function saveCandidateData($data, $accessBy) {
             $sql .= implode(", ", $serviceValues);
             $db->query($sql);
         }
-        echo "New record " . (!empty($data['candidateId']) ? 'updated' : 'created') . " successfully";
+        echo "Profile " . (!empty($data['candidateId']) ? 'updated' : 'created') . " successfully";
     } else {
         echo "Error: " . $sql . "<br>" . $db->error;
     }
@@ -313,7 +313,15 @@ function displayDrilldown(id, checked, discountRemaining) {
 </form>
 <?php } ?>
 <h3>Candidate Info</h3>
-<form method="post" class="candidateForm" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>" enctype="multipart/form-data">
+<form method="post" class="candidateForm" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>&m=<?php echo !empty($_GET['m']) ? $_GET['m'] : ''; ?>" enctype="multipart/form-data">
+<div class="row">
+	<div class="col-lg-1">
+		<label class="control-label" for="email">Email</label>
+	</div>
+	<div class="col-lg-3">
+		<input required type="text" name="email" id="email" class="form-control" value="<?php echo !empty($candidateDetails) ? $candidateDetails['email'] : $email; ?>" <?php echo !empty($email) ? 'readonly' : 'onblur="getCandidate(this.value)"'; ?>/>
+	</div>
+</div>
 <div class="row">
 	<div class="col-lg-1">
 		<label class="control-label" for="name">Name</label>
@@ -328,14 +336,6 @@ function displayDrilldown(id, checked, discountRemaining) {
 	</div>
 	<div class="col-lg-3">
 		<input required type="text" name="mobile" class="form-control" id="mobile" value="<?php echo !empty($candidateDetails) ? $candidateDetails['mobile'] : ''; ?>" />
-	</div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="email">Email</label>
-	</div>
-	<div class="col-lg-3">
-		<input required type="text" name="email" id="email" class="form-control" value="<?php echo !empty($candidateDetails) ? $candidateDetails['email'] : $email; ?>" <?php echo !empty($email) ? 'readonly' : 'onblur="getCandidate(this.value)"'; ?>/>
 	</div>
 </div>
 <div class="row">
