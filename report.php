@@ -48,8 +48,12 @@ function getCandidates($filterData = []) {
     if ($result->num_rows < 1) {
         return $candidates;
     }
+    $sr = 1;
     while($row = $result->fetch_assoc()) {
+        unset($row['id']);
+        $row = array_merge(['sr' => $sr], $row);
         $candidates[] = $row;
+        $sr++;
     }
     $db->close();
     return $candidates;

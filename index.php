@@ -3,6 +3,7 @@
 include_once 'config.php';
 session_start();
 $email = !empty($_GET['ce']) ? base64_decode($_GET['ce']) : '';
+$mode = !empty($_GET['m']) ? base64_decode($_GET['m']) : '';
 $id = !empty($_GET['id']) ? base64_decode($_GET['id']) : '';
 $accessBy = !empty($email) ? 'Candidate' : 'Admin';
 $education = ['B.E./B.Tech', 'B.Sc', 'M.Tech', 'M.Com', 'B.Com', 'BCA', 'MBA'];

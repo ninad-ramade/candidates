@@ -1,6 +1,6 @@
 <?php
 session_start();
-if(empty($email)) {
+if(empty($email) && $mode != 'new') {
     if(empty($_SESSION['user'])) {
         header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'login.php');
     } else {
