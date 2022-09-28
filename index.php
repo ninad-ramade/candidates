@@ -297,7 +297,7 @@ function displayDrilldown(id, checked, discountRemaining) {
     }
 }
 </script>
-<?php if(empty($email)){ ?>
+<?php if(empty($email) && $mode != 'new'){ ?>
 <form method="post" action="index.php">
 <div class="row">
 	<div class="col-lg-1">
