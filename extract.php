@@ -92,8 +92,9 @@ if($_POST['submit'] == 'Upload and process') {
             exit;
         }
         $target_file = 'profiles/unprocessed/' . basename($resume["name"]);
-        if(!move_uploaded_file($resume["tmp_name"], $target_file)) {
-            echo 'Files uploa failed.';
+        $uploadResponse = move_uploaded_file($resume["tmp_name"], $target_file);
+        if(!$uploadResponse) {
+            echo 'Files upload failed. Error #' . $_FILES["resume"]["error"];
             exit;
         }
         if(strtolower($ext) == 'zip') {
