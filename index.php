@@ -329,7 +329,7 @@ function displayDrilldown(id, checked, discountRemaining) {
 <form method="post" class="candidateForm" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>&m=<?php echo !empty($_GET['m']) ? $_GET['m'] : ''; ?>" enctype="multipart/form-data">
 <div class="row">
     <div class="col-lg-3">
-    	Press Ctrl and select for multiple options.
+    	Press Ctrl and select for multiple options.<br/>Mail to <a href="mailto:feedback@rapidtechnologies.co.in">feedback@rapidtechnologies.co.in</a> for any queries.
     </div>
 </div>
 <div class="row">
@@ -456,27 +456,12 @@ function displayDrilldown(id, checked, discountRemaining) {
   	</div>
 </div>
 
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="currentCompany">Current Company</label>
-	</div>
-	<div class="col-lg-3">
-        <select id="currentCompany" class="form-control" name="currentCompany">
-        <option value="">Select</option>
-        <?php foreach($companies as $company) { ?>
-        <option value="<?php echo $company; ?>" <?php echo !empty($candidateDetails) ? ($company == $candidateDetails['currentCompany'] ? 'selected="selected"' : '') : ''; ?>><?php echo $company; ?></option>
-        <?php } ?>
-        </select>
-   	</div>
-</div>
-
 <div class="row">
 	<div class="col-lg-1">
 		<label class="control-label" for="currentCtc">Current CTC (Lacs)</label>
 	</div>
 	<div class="col-lg-3">
-		<input type="text" name="currentCtc" class="form-control" id="currentCtc" value="<?php echo !empty($candidateDetails) ? $candidateDetails['currentCtc'] : ''; ?>" />
+		<input type="number" name="currentCtc" class="form-control" id="currentCtc" value="<?php echo !empty($candidateDetails) ? $candidateDetails['currentCtc'] : ''; ?>" />
 	</div>
 </div>
 
@@ -485,7 +470,7 @@ function displayDrilldown(id, checked, discountRemaining) {
 		<label class="control-label" for="expectedCtc">Exp CTC (Lacs)</label>
 	</div>
 	<div class="col-lg-3">
-		<input type="text" name="expectedCtc" class="form-control" id="expectedCtc" value="<?php echo !empty($candidateDetails) ? $candidateDetails['expectedCtc'] : ''; ?>" />
+		<input type="number" name="expectedCtc" class="form-control" id="expectedCtc" value="<?php echo !empty($candidateDetails) ? $candidateDetails['expectedCtc'] : ''; ?>" />
 	</div>
 </div>
 

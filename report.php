@@ -7,7 +7,6 @@ use PHPMailer\PHPMailer\Exception;
 require_once 'vendor/autoload.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
 session_start();
 function getCandidates($filterData = []) {
     $db = new mysqli(servername, username, password, dbname);
@@ -50,6 +49,7 @@ function getCandidates($filterData = []) {
     }
     $sr = 1;
     while($row = $result->fetch_assoc()) {
+        unset($row['subskills']);
         $row = array_merge(['sr' => $sr], $row);
         $candidates[] = $row;
         $sr++;
@@ -95,22 +95,13 @@ function getVendors() {
 function sendEmail($email, $name, $id, $body) {
     $fromEmail = $_SESSION['user']['email'];
     $mail = new PHPMailer();
-    $mail->IsSMTP();
-    $mail->Mailer = "smtp";
-    //$mail->SMTPDebug  = 1;
-    $mail->SMTPAuth   = TRUE;
-    $mail->SMTPSecure = "tls";
-    $mail->Port       = 587;
-    $mail->Host       = "smtp.gmail.com";
-    $mail->Username   = $fromEmail;
-    $mail->Password   = "howzfglpuhfruwjy";
-    $mail->IsHTML(true);
-    $mail->AddAddress($email, $name);
     $mail->setFrom($fromEmail, "RTJobs");
+    $mail->AddAddress($email, $name);
     $mail->AddReplyTo($fromEmail, "RTJobs");
+    $mail->IsHTML(true);
     $mail->Subject = "RT Jobs Candidature";
     $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
-    $mail->MsgHTML($content);
+    $mail->Body = $content;
     if(!$mail->Send()) {
         return false;
     }
@@ -119,22 +110,13 @@ function sendEmail($email, $name, $id, $body) {
 function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
     $fromEmail = $_SESSION['user']['email'];
     $mail = new PHPMailer();
-    $mail->IsSMTP();
-    $mail->Mailer = "smtp";
-    //$mail->SMTPDebug  = 1;
-    $mail->SMTPAuth   = TRUE;
-    $mail->SMTPSecure = "tls";
-    $mail->Port       = 587;
-    $mail->Host       = "smtp.gmail.com";
-    $mail->Username   = $fromEmail;
-    $mail->Password   = "howzfglpuhfruwjy";
-    $mail->IsHTML(true);
-    $mail->AddAddress($email, $name);
     $mail->setFrom($fromEmail, "RTJobs");
+    $mail->AddAddress($email, $name);
     $mail->AddReplyTo($fromEmail, "RTJobs");
+    $mail->IsHTML(true);
     $mail->Subject = $subject;
     $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/><a href="' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'apply.php?id=' . base64_encode($applicationId) . '" target="blank">Apply Now</a><br/><br/>Thanks<br/><br/>RT Jobs';
-    $mail->MsgHTML($content);
+    $mail->Body = $content;
     if(!$mail->Send()) {
         return $mail->ErrorInfo;
     }
