@@ -30,21 +30,24 @@ include 'header.php';
 ?>
 <div class="container-fluid">
 <div class="row">
-	<div class="loginBrand">RAPID Jobs</div>
-    <div class="loginWrapper col-lg-3">
-        <form method="post" action="login.php">
-            <div class="form-group">
-                <label class="control-label">Username</label>
-                <input type="text" name="username" id="username" required class="form-control" />
-            </div>
-            <div class="form-group">
-                <label class="control-label">Password</label>
-               	<input type="password" name="password" id="password" required class="form-control" />
-            </div>
-            <div class="form-group">
-            	<input type="submit" name="submit" value="Login" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
+	<div class="section"><img class="logo" alt="RapidTech" src="assets/logo.jpeg"></div>
+	<div class="section">
+    	<div class="loginBrand">RAPID Jobs</div>
+        <div class="loginWrapper col-lg-6">
+            <form method="post" action="login.php">
+                <div class="form-group">
+                    <label class="control-label">Username</label>
+                    <input type="text" name="username" id="username" required class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Password</label>
+                   	<input type="password" name="password" id="password" required class="form-control" />
+                </div>
+                <div class="form-group">
+                	<input type="submit" name="submit" value="Login" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+  	</div>
 </div>
 <?php include 'footer.php'; ?>

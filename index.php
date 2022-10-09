@@ -6,18 +6,56 @@ $email = !empty($_GET['ce']) ? base64_decode($_GET['ce']) : '';
 $mode = !empty($_GET['m']) ? base64_decode($_GET['m']) : '';
 $id = !empty($_GET['id']) ? base64_decode($_GET['id']) : '';
 $accessBy = !empty($email) ? 'Candidate' : 'Admin';
-$education = ['B.E./B.Tech', 'B.Sc', 'M.Tech', 'M.Com', 'B.Com', 'BCA', 'MBA'];
 $skills = getSkills();
-$locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
 $companies = ['Deloitte', 'TCS', 'CAP GEMINI', 'Tech Mahindra', 'HCL', 'WIPRO', 'LUMEN', 'EVOKE TECHNOLOGIES', 'MPHASIS', 'L & T', 'Hexaware', 'None'];
 $services = getServices();
 $vservices = getVendorServices();
+$locations = getLocations();
+$education = getQualifications();
 foreach($services as $key => &$service) {
     foreach($vservices as $vkey => $vservice) {
         if($service['serviceId'] == $vservice['serviceId']) {
             $service['vservices'][] = $vservice;
         }
     }
+}
+function getLocations($location = null) {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM locations";
+    if(!empty($location)) {
+        $sql .= " WHERE LOWER(location) = '" . strtolower($location) . "'";
+    } else {
+        $sql .= " ORDER BY location ASC";
+    }
+    $result = $db->query($sql);
+    $locations = [];
+    if ($result->num_rows < 1) {
+        return $locations;
+    }
+    while($row = $result->fetch_assoc()) {
+        $locations[] = $row;
+    }
+    $db->close();
+    return $locations;
+}
+function getQualifications($qualification = null) {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM qualifications";
+    if(!empty($qualification)) {
+        $sql .= " WHERE LOWER(qualification) = '" . strtolower($qualification) . "'";
+    } else {
+        $sql .= " ORDER BY qualification ASC";
+    }
+    $result = $db->query($sql);
+    $qualifications = [];
+    if ($result->num_rows < 1) {
+        return $qualifications;
+    }
+    while($row = $result->fetch_assoc()) {
+        $qualifications[] = $row;
+    }
+    $db->close();
+    return $qualifications;
 }
 function getSkills($skill = null) {
     $db = new mysqli(servername, username, password, dbname);
@@ -140,11 +178,11 @@ function buildServicesData($data, $candidateId) {
 }
 function saveCandidateData($data, $accessBy) {
     $postData = $data;
-    $data['education'] = !empty($data['education']) ? implode(', ', $data['education']) : '';
-    $data['skills'] = !empty($data['skills']) ? implode(', ', $data['skills']) : '';
+    $data['education'] = !empty($data['education']) ? ',' . implode(',', $data['education']) . ',' : '';
+    $data['skills'] = !empty($data['skills']) ? ',' . implode(',', $data['skills']) . ',' : '';
     //$data['subskills'] = !empty($data['subskills']) ? implode(', ', $data['subskills']) : '';
-    $data['currentLocation'] = !empty($data['currentLocation']) ? implode(', ', $data['currentLocation']) : '';
-    $data['preferredLocation'] = !empty($data['preferredLocation']) ? implode(', ', $data['preferredLocation']) : '';
+    $data['currentLocation'] = !empty($data['currentLocation']) ? ',' . implode(',', $data['currentLocation']) . ',' : '';
+    $data['preferredLocation'] = !empty($data['preferredLocation']) ? ',' . implode(',', $data['preferredLocation']) . ',' : '';
     $data['status'] = !empty($data['candidateId']) ? 'Updated by ' . $accessBy : 'Created';
     $db = new mysqli(servername, username, password, dbname);
     unset($data['submit']);
@@ -364,7 +402,7 @@ function displayDrilldown(id, checked, discountRemaining) {
         <select id="education" name="education[]" class="form-control" multiple="multiple">
         <option value="">Select</option>
         <?php foreach($education as $edu) { ?>
-        <option value="<?php echo $edu; ?>" <?php echo !empty($candidateDetails) ? (in_array($edu, explode(", ", $candidateDetails['education'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $edu; ?></option>
+        <option value="<?php echo $edu['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($edu['id'], explode(",", $candidateDetails['education'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $edu['qualification']; ?></option>
         <?php } ?>
         </select>
     </div>
@@ -377,7 +415,7 @@ function displayDrilldown(id, checked, discountRemaining) {
         <select required id="skills" name="skills[]" class="form-control" multiple="multiple">
         <option value="">Select</option>
         <?php foreach($skills as $eachskill) { ?>
-        <option value="<?php echo $eachskill['skill']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['skill'], explode(", ", $candidateDetails['skills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
+        <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['id'], explode(",", $candidateDetails['skills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
         <?php } ?>
         </select>
   	</div>
@@ -402,13 +440,7 @@ function displayDrilldown(id, checked, discountRemaining) {
 		<label class="control-label" for="overallExperience">Overall Exp</label>
 	</div>
 	<div class="col-lg-3">
-        <select id="overallExperience" class="form-control" name="overallExperience">
-        <option value="">Select</option>
-        <option value="0-3" <?php echo !empty($candidateDetails) ? ('0-3' == $candidateDetails['overallExperience'] ? 'selected="selected"' : '') : ''; ?>>0-3</option>
-        <option value="4-7" <?php echo !empty($candidateDetails) ? ('4-7' == $candidateDetails['overallExperience'] ? 'selected="selected"' : '') : ''; ?>>4-7</option>
-        <option value="8-10" <?php echo !empty($candidateDetails) ? ('8-10' == $candidateDetails['overallExperience'] ? 'selected="selected"' : '') : ''; ?>>8-10</option>
-        <option value=">10" <?php echo !empty($candidateDetails) ? ('>10' == $candidateDetails['overallExperience'] ? 'selected="selected"' : '') : ''; ?>>>10</option>
-        </select>
+		<input name="overallExperience" id="overallExperience" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($candidateDetails['overallExperience']) ? $candidateDetails['overallExperience'] : ''; ?>" />
  	</div>
 </div>
 
@@ -417,13 +449,7 @@ function displayDrilldown(id, checked, discountRemaining) {
 		<label class="control-label" for="relevantExperience">Relevant Exp</label>
 	</div>
 	<div class="col-lg-3">
-        <select id="relevantExperience" class="form-control" name="relevantExperience">
-        <option value="">Select</option>
-        <option value="0-3" <?php echo !empty($candidateDetails) ? ('0-3' == $candidateDetails['overallExperience'] ? 'selected="selected"' : '') : ''; ?>>0-3</option>
-        <option value="4-7" <?php echo !empty($candidateDetails) ? ('4-7' == $candidateDetails['overallExperience'] ? 'selected="selected"' : '') : ''; ?>>4-7</option>
-        <option value="8-10" <?php echo !empty($candidateDetails) ? ('8-10' == $candidateDetails['overallExperience'] ? 'selected="selected"' : '') : ''; ?>>8-10</option>
-        <option value=">10" <?php echo !empty($candidateDetails) ? ('>10' == $candidateDetails['overallExperience'] ? 'selected="selected"' : '') : ''; ?>>>10</option>
-        </select>
+		<input name="relevantExperience" id="relevantExperience" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($candidateDetails['relevantExperience']) ? $candidateDetails['relevantExperience'] : ''; ?>" />
   	</div>
 </div>
 
@@ -435,7 +461,7 @@ function displayDrilldown(id, checked, discountRemaining) {
         <select id="currentLocation" class="form-control" name="currentLocation[]" multiple="multiple">
         <option value="">Select</option>
         <?php foreach($locations as $location) { ?>
-        <option value="<?php echo $location; ?>" <?php echo !empty($candidateDetails) ? (in_array($location, explode(", ", $candidateDetails['currentLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location; ?></option>
+        <option value="<?php echo $location['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($location['id'], explode(",", $candidateDetails['currentLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
         <?php } ?>
         </select>
   	</div>
@@ -449,9 +475,9 @@ function displayDrilldown(id, checked, discountRemaining) {
         <select id="preferredLocation" class="form-control" name="preferredLocation[]" multiple="multiple">
         <option value="">Select</option>
         <?php foreach($locations as $location) { ?>
-        <option value="<?php echo $location; ?>" <?php echo !empty($candidateDetails) ? (in_array($location, explode(", ", $candidateDetails['preferredLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location; ?></option>
+        <option value="<?php echo $location['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($location['id'], explode(",", $candidateDetails['preferredLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
         <?php } ?>
-        <option value="Any">Any</option>
+        <option value="">Any</option>
         </select>
   	</div>
 </div>

@@ -1,5 +1,14 @@
+.section{
+	float: left;
+	width: 50%;
+	margin-top: 10%;
+}
+.section:nth-child(2) {
+	border-left: 1px solid #ccc;
+	padding: 40px 0px 80px 0px;
+}
 .loginWrapper {
-    margin-left: 38%;
+    margin-left: 25%;
     margin-top: 20px;
     border:1px solid #ddd;
     border-radius: 4px;
@@ -7,17 +16,20 @@
 }
 .loginBrand {
 	text-align: center;
-    margin-top: 10%;
     font-size: 24px;
     font-weight: bold;
 }
 .navbar a {
 	color: white!important;
 }
+.logo {
+	display: block;
+	margin: 10% auto;
+}
 .candidateForm div {
 	margin-bottom: 10px;
 }
-#salaryTo {
+#overallExperienceTo, #relevantExperienceTo, #salaryTo {
 	margin-top: 5px;
 }
 .actionRow {
@@ -47,4 +59,20 @@ table td, th {
 .vservice-ul {
 	padding-left: 20px!important;
 	display: none;
+}
+.navbar-brand > img {
+  	display: block;
+  	width: 100px;
+  	margin-top: -15px;
+}
+@media only screen and (max-width: 768px) {
+	.section:nth-child(1) {
+		display: none;
+	}
+	.section {
+		width: 100%;
+	}
+	.loginWrapper {
+		margin-left: 0%;
+	}
 }

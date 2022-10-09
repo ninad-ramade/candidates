@@ -16,7 +16,7 @@ function getCandidates($filterData = []) {
     if(!empty(array_filter($filterData['skills']))) {
         $skills = getSkills($filterData['skills']);
         $skills = getSkills(null, array_column($skills, 'groupParent'));
-        $filterData['skills'] = array_column($skills, 'skill');
+        $filterData['skills'] = array_column($skills, 'id');
     }
     /* if(!empty($filterData['subskills'])) {
         $skills = getSkills($filterData['subskills']);
@@ -30,9 +30,16 @@ function getCandidates($filterData = []) {
                 if($filter == 'salaryFrom' || $filter == 'salaryTo') {
                     $innerWhere = $filter == 'salaryFrom' ? 'expectedCtc >= ' . $value : 'expectedCtc <= ' . $value;
                     array_push($where, '('. $innerWhere . ')');
-                } else {
+                } else if ($filter == 'overallExperienceFrom' || $filter == 'overallExperienceTo') {
+                    $innerWhere = $filter == 'overallExperienceFrom' ? 'overallExperience >= ' . $value : 'expectedCtc <= ' . $value;
+                    array_push($where, '('. $innerWhere . ')');
+                } else if ($filter == 'relevantExperienceFrom' || $filter == 'relevantExperienceTo') {
+                    $innerWhere = $filter == 'relevantExperienceFrom' ? 'overallExperience >= ' . $value : 'expectedCtc <= ' . $value;
+                    array_push($where, '('. $innerWhere . ')');
+                }
+                else {
                     foreach($value as $eachval) {
-                        $innerWhere[] = $filter . ' like "%'. $eachval .'%"';
+                        $innerWhere[] = $filter . ' like "%,'. $eachval .',%"';
                     }
                     array_push($where, '('. implode(" OR ", $innerWhere) . ')');
                 }
@@ -48,14 +55,50 @@ function getCandidates($filterData = []) {
         return $candidates;
     }
     $sr = 1;
+    $resultSkills = [];
+    $resultLocations = [];
+    $resultQualifications = [];
     while($row = $result->fetch_assoc()) {
         unset($row['subskills']);
+        $row['skills'] = array_filter(explode(",", $row['skills']));
+        $resultSkills = array_merge($resultSkills, $row['skills']);
+        if(!empty($row['currentLocation'])) {
+            $row['currentLocation'] = array_filter(explode(",", $row['currentLocation']));
+            $row['preferredLocation'] = array_filter(explode(",", $row['preferredLocation']));
+            $resultLocations = array_merge($resultLocations, $row['preferredLocation']);
+        }
+        if(!empty($row['education'])) {
+            $row['education'] = array_filter(explode(",", $row['education']));
+            $resultQualifications = array_merge($resultQualifications, $row['education']);
+        }
         $row = array_merge(['sr' => $sr], $row);
         $candidates[] = $row;
         $sr++;
     }
+    $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
+    $result = $db->query($sql);
+    $finalSkills = [];
+    while($row = $result->fetch_assoc()) {
+        $finalSkills[$row['id']] = $row['skill'];
+    }
+    if(!empty($resultLocations)) {
+        $sql = "SELECT * FROM locations WHERE id IN (" . implode(",", array_unique($resultLocations)) . ")";
+        $result = $db->query($sql);
+        $finalLocations = [];
+        while($row = $result->fetch_assoc()) {
+            $finalLocations[$row['id']] = $row['location'];
+        }
+    }
+    if(!empty($resultQualifications)) {
+        $sql = "SELECT * FROM qualifications WHERE id IN (" . implode(",", array_unique($resultQualifications)) . ")";
+        $result = $db->query($sql);
+        $finalQualifications = [];
+        while($row = $result->fetch_assoc()) {
+            $finalQualifications[$row['id']] = $row['qualification'];
+        }
+    }
     $db->close();
-    return $candidates;
+    return ['candidates' => $candidates, 'skills' => $finalSkills, 'locations' => $finalLocations, 'qualifications' => $finalQualifications];
 }
 function getSkills($id = null, $groupParent = null) {
     $db = new mysqli(servername, username, password, dbname);
@@ -77,6 +120,42 @@ function getSkills($id = null, $groupParent = null) {
     }
     $db->close();
     return $skills;
+}
+function getLocations($id = null) {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM locations";
+    if(!empty($id)) {
+        $sql .= " WHERE id IN (" . implode(",", array_filter($id)) . ")";
+    }
+    $sql .= " ORDER BY location ASC";
+    $result = $db->query($sql);
+    $locations = [];
+    if ($result->num_rows < 1) {
+        return $locations;
+    }
+    while($row = $result->fetch_assoc()) {
+        $locations[] = $row;
+    }
+    $db->close();
+    return $locations;
+}
+function getQualifications($id = null) {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM qualifications";
+    if(!empty($id)) {
+        $sql .= " WHERE id IN (" . implode(",", array_filter($id)) . ")";
+    }
+    $sql .= " ORDER BY qualification ASC";
+    $result = $db->query($sql);
+    $qualifications = [];
+    if ($result->num_rows < 1) {
+        return $qualifications;
+    }
+    while($row = $result->fetch_assoc()) {
+        $qualifications[] = $row;
+    }
+    $db->close();
+    return $qualifications;
 }
 function getVendors() {
     $db = new mysqli(servername, username, password, dbname);
@@ -123,10 +202,12 @@ function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
     return true;
 }
 $candidates = [];
+$candidateSkills = [];
+$candidateLocations = [];
 $skills = getSkills();
 $vendors = getVendors();
 $protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
-$locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
+$locations = getLocations();
 if(!empty($_POST['submit'])) {
     if($_POST['submit'] == 'Reset') {
         $_POST = $data = [];
@@ -138,7 +219,11 @@ if(!empty($_POST['submit'])) {
         unset($data['customBody']);
         unset($data['vendor']);
         $db = new mysqli(servername, username, password, dbname);
-        $candidates = getCandidates($data);
+        $candidatesData = getCandidates($data);
+        $candidates = $candidatesData['candidates'];
+        $candidateSkills = $candidatesData['skills'];
+        $candidateLocations = $candidatesData['locations'];
+        $candidateQualifications = $candidatesData['qualifications'];
         if($_POST['submit'] == 'Send email to candidates to update') {
             foreach ($candidates as $candidate) {
                 if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody'])) {
@@ -150,12 +235,12 @@ if(!empty($_POST['submit'])) {
         } else if($_POST['submit'] == 'Send custom email') {
             $failedEmails = [];
             foreach ($candidates as $candidate) {
-                $subject = "Profile for " . implode(", ", $data['skills']);
+                $subject = "Profile for " . implode(", ", array_intersect_key($candidateSkills, array_flip($data['skills'])));
                 if(!empty($data['overallExperience'])) {
                     $subject .= " with " . implode(", ", $data['overallExperience']) . " Years experience";
                 }
                 if(!empty($data['preferredLocation'])) {
-                    $subject .= " at " . implode(", ", $data['preferredLocation']) . " location";
+                    $subject .= " at " . implode(", ", array_intersect_key($candidateLocations, array_flip($data['preferredLocation']))) . " location";
                 }
                 $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentOn, subject, status) VALUES (" . $_POST['vendor'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                 if($db->query($sql) === TRUE) {
@@ -244,31 +329,21 @@ include 'menu.php'; ?>
    	</div>
    	<?php */ ?>
 	<div class="col-lg-1">
-		<label for="overallExperience">Overall Exp</label>
-        <select id="overallExperience" name="overallExperience[]" multiple="multiple" class="form-control">
-        <option value="">Select</option>
-        <option value="0-3" <?php echo !empty($_POST['overallExperience']) ? (in_array('0-3', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>0-3</option>
-        <option value="4-7" <?php echo !empty($_POST['overallExperience']) ? (in_array('4-7', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>4-7</option>
-        <option value="8-10" <?php echo !empty($_POST['overallExperience']) ? (in_array('8-10', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>8-10</option>
-        <option value=">10" <?php echo !empty($_POST['overallExperience']) ? (in_array('>10', $_POST['overallExperience']) ? 'selected="selected"' : '') : ''; ?>>>10</option>
-        </select>
+		<label>Overall Exp</label>
+        <input name="overallExperienceFrom" id="overallExperienceFrom" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($_POST['overallExperienceFrom']) ? $_POST['overallExperienceFrom'] : ''; ?>" />
+		<input name="overallExperienceTo" id="overallExperienceTo" class="form-control" type="number" step="1" min="0" placeholder="To" value="<?php echo !empty($_POST['overallExperienceTo']) ? $_POST['overallExperienceTo'] : ''; ?>" />
    	</div>
 	<div class="col-lg-1">
         <label for="relevantExperience">Relevant Exp</label>
-        <select id="relevantExperience" name="relevantExperience[]" multiple="multiple" class="form-control">
-        <option value="">Select</option>
-        <option value="0-3" <?php echo !empty($_POST['relevantExperience']) ? (in_array('0-3', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>0-3</option>
-        <option value="4-7" <?php echo !empty($_POST['relevantExperience']) ? (in_array('4-7', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>4-7</option>
-        <option value="8-10" <?php echo !empty($_POST['relevantExperience']) ? (in_array('8-10', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>8-10</option>
-        <option value=">10" <?php echo !empty($_POST['relevantExperience']) ? (in_array('>10', $_POST['relevantExperience']) ? 'selected="selected"' : '') : ''; ?>>>10</option>
-        </select>
+        <input name="relevantExperienceFrom" id="relevantExperienceFrom" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($_POST['relevantExperienceFrom']) ? $_POST['relevantExperienceFrom'] : ''; ?>" />
+		<input name="relevantExperienceTo" id="relevantExperienceTo" class="form-control" type="number" step="1" min="0" placeholder="To" value="<?php echo !empty($_POST['relevantExperienceTo']) ? $_POST['relevantExperienceTo'] : ''; ?>" />
 	</div>
 	<div class="col-lg-1">
 		<label for="preferredLocation">Preferred Loc</label>
         <select id="preferredLocation" name="preferredLocation[]" multiple="multiple" class="form-control">
         <option value="">Select</option>
         <?php foreach($locations as $location) { ?>
-        <option value="<?php echo $location; ?>" <?php echo !empty($_POST['preferredLocation']) ? (in_array($location, $_POST['preferredLocation']) ? 'selected="selected"' : '') : ''; ?>><?php echo $location; ?></option>
+        <option value="<?php echo $location['id']; ?>" <?php echo !empty($_POST['preferredLocation']) ? (in_array($location['id'], $_POST['preferredLocation']) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
         <?php } ?>
         <option value="">Any</option>
         </select>
@@ -284,7 +359,7 @@ include 'menu.php'; ?>
     	</select>
   	</div>
 	<div class="col-lg-2">
-    	<label for="preferredLocation">Salary Range (Lacs)</label>
+    	<label>Salary Range (Lacs)</label>
     	<input name="salaryFrom" id="salaryFrom" class="form-control" type="text" placeholder="From" value="<?php echo !empty($_POST['salaryFrom']) ? $_POST['salaryFrom'] : ''; ?>" />
 		<input name="salaryTo" id="salaryTo" class="form-control" type="text" placeholder="To" value="<?php echo !empty($_POST['salaryTo']) ? $_POST['salaryTo'] : ''; ?>" />
 	</div>
@@ -309,6 +384,13 @@ include 'menu.php'; ?>
 	<td><?php 
 	if($column == 'servingNotice') {
 	    echo !empty($candidate[$column]) ? ($candidate[$column] == 1 ? 'Yes' : 'No') : '';
+	} else if ($column == 'education') {
+	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateQualifications, array_flip($candidate[$column]))) : '';
+	}
+	else if ($column == 'skills') {
+	    echo implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column])));
+	} else if ($column == 'currentLocation' || $column == 'preferredLocation') {
+	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateLocations, array_flip($candidate[$column]))) : '';
 	} else {
 	    echo $column == 'resume' ? '<a href="'. $candidate[$column]. '" target="blank" >'. pathinfo($candidate[$column], PATHINFO_BASENAME) .'</a>' : $candidate[$column];
 	}

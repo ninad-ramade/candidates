@@ -9,6 +9,7 @@ if(empty($email) && $mode != 'new') {
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
     <div class="navbar-header">
+      <a class="navbar-brand" href="/"><img alt="RapidTech" src="assets/logo.jpeg"></a>
       <a class="navbar-brand" href="/">RAPID Jobs</a>
     </div>
     <ul class="nav navbar-nav">

@@ -22,6 +22,20 @@ function getSkills() {
     $db->close();
     return $skills;
 }
+function getLocations() {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM locations ORDER BY location ASC";
+    $result = $db->query($sql);
+    $locations = [];
+    if ($result->num_rows < 1) {
+        return $locations;
+    }
+    while($row = $result->fetch_assoc()) {
+        $locations[] = $row;
+    }
+    $db->close();
+    return $locations;
+}
 function read_docx($filename){
     
     $striped_content = '';
@@ -61,12 +75,15 @@ function getEmailFromContent($content) {
     return $email;
 }
 function getSkillFromContent($content) {
-    $allSkills = array_column(getSkills(), 'skill');
+    $allSkills = getSkills();
     $skills = [];
     foreach($allSkills as $eachSkill) {
-        $skills[] = !empty(strstr(strtolower($content), strtolower($eachSkill))) ? $eachSkill : '';
+        if(!empty(strstr(strtolower($content), strtolower($eachSkill['skill'])))) {
+            $skills['id'][] = $eachSkill['id'];
+            $skills['skills'][] = $eachSkill['skill'];
+        }
     }
-    return array_filter($skills);
+    return $skills;
 }
 function getPhoneFromContent($content) {
     preg_match_all("/[+91\s-]+[6-9][0-9]{9}/", $content, $phones);
@@ -74,12 +91,15 @@ function getPhoneFromContent($content) {
     return !empty($phones) ? $phones[0][0] : '';
 }
 function getLocationsFromContent($content) {
-    $locations = ['Hyderabad', 'Banglore', 'Mumbai', 'Noida', 'Delhi', 'Calcutta', 'Chennai', 'Coimbatore', 'Gurgoan', 'Pune', 'NCR'];
-    $resumeLocations = [];
-    foreach($locations as $location) {
-        $resumeLocations[] = !empty(strstr(strtolower($content), strtolower($location))) ? $location : '';
+    $allLocations = getLocations();
+    $locations = [];
+    foreach($allLocations as $location) {
+        if(!empty(strstr(strtolower($content), strtolower($location['location'])))) {
+            $locations['id'][] = $location['id'];
+            $locations['locations'][] = $location['location'];
+        }
     }
-    return array_values(array_filter($resumeLocations));
+    return $locations;
 }
 if($_POST['submit'] == 'Upload and process') {
     $allowedFiles = ['doc', 'docx', 'zip'];
@@ -139,10 +159,15 @@ else {
         }
         $email = getEmailFromContent($content);
         $phone = getPhoneFromContent($content);
-        $skill = implode(", ", getSkillFromContent($content));
+        $skills = getSkillFromContent($content);
+        $skillIds = "," . implode(",", $skills['id']) . ",";
+        $skillTexts = implode(", ", $skills['skills']);
         $locations = getLocationsFromContent($content);
-        $currentLocation = !empty($locations) ? $locations[0] : '';
-        $preferredLocations = !empty($locations) && count($locations) > 1 ? implode(", ", $locations) : '';
+        if(!empty($locations)) {
+            $locationIds = $locations['id'];
+            $currentLocation = !empty($locationIds) ? $locationIds[0] : '';
+            $preferredLocations = !empty($locationIds) ? ',' . implode(",", $locationIds) . ',' : '';
+        }
         if(!empty($email)) {
             $name = explode("@", $email);
             $resume = mysqli_real_escape_string($db, $protocol . "://" . $_SERVER['SERVER_NAME'] . baseurl . $processedResumeDir ."/". $file);
@@ -150,9 +175,37 @@ else {
             $result = $db->query($sql);
             $existingCandidate = mysqli_fetch_assoc($result);
             if(!empty($existingCandidate)) {
-                $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skill . "', subskills = '" . $skill . "', currentLocation = '" . $currentLocation . "', preferredLocation = '" . $preferredLocations . "', resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
+                switch ($existingCandidate['overallExperience']) {
+                    case '0-3':
+                        $overallExp = 3;
+                        break;
+                    case '4-7':
+                        $overallExp = 7;
+                        break;
+                    case '8-10':
+                        $overallExp = 10;
+                        break;
+                    case '>10':
+                        $overallExp = 12;
+                        break;
+                }
+                switch ($existingCandidate['relevantExperience']) {
+                    case '0-3':
+                        $relevantExp = 3;
+                        break;
+                    case '4-7':
+                        $relevantExp = 7;
+                        break;
+                    case '8-10':
+                        $relevantExp = 10;
+                        break;
+                    case '>10':
+                        $relevantExp = 12;
+                        break;
+                }
+                $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skillIds . "', subskills = '" . $skillIds . "', currentLocation = '" . $currentLocation . "', preferredLocation = '" . $preferredLocations . "', overallExperience = '" . $overallExp . "', relevantExperience = '" . $relevantExp . "', resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
             } else {
-                $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, currentLocation, preferredLocation, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skill."', '".$skill."', '".$currentLocation."', '".$preferredLocations."', '" . $resume . "', 'Created')";
+                $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, currentLocation, preferredLocation, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skillIds."', '".$skillIds."', '".$currentLocation."', '".$preferredLocations."', '" . $resume . "', 'Created')";
             }
             try {
                 if($db->query($sql) === TRUE) {
@@ -167,7 +220,11 @@ else {
         }
         $eachFile['email'] = $email;
         $eachFile['phone'] = $phone;
-        $eachFile['skills'] = $skill;
+        $eachFile['skills'] = $skillTexts;
+        if(!empty($locations)) {
+            $eachFile['currentLoc'] = $locations['locations'][0];
+            $eachFile['preferredLoc'] = implode(", ", $locations['locations']);
+        }
         $allFiles[] = $eachFile;
     }
     echo 'Extracted all profiles successfully.';
@@ -204,12 +261,16 @@ include 'menu.php';
 	<td><strong>Email</strong></td>
 	<td><strong>Phone</strong></td>
 	<td><strong>Skills</strong></td>
+	<td><strong>Current Location</strong></td>
+	<td><strong>Preferred Locations</strong></td>
 	<td><strong>Status</strong></td></tr>
 <?php foreach($allFiles as $file) { ?>
 <tr><td><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'profiles/unprocessed/' .$file['name']; ?>" target="blank"><?php echo $file['name']; ?></a></td>
 <td><?php echo !empty($file['email']) ? $file['email'] : ''; ?></td>
 <td><?php echo !empty($file['phone']) ? $file['phone'] : ''; ?></td>
 <td><?php echo !empty($file['skills']) ? $file['skills'] : ''; ?></td>
+<td><?php echo !empty($file['currentLoc']) ? $file['currentLoc'] : ''; ?></td>
+<td><?php echo !empty($file['preferredLoc']) ? $file['preferredLoc'] : ''; ?></td>
 <td><?php echo !empty($file['status']) ? $file['status'] : 'Pending'; ?></td></tr>
 <?php } ?>
 </table>
