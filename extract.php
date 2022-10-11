@@ -178,8 +178,9 @@ else {
                 $education = array_map('trim', explode(",", $existingCandidate['education']));
                 $sql = "SELECT * FROM qualifications WHERE qualification IN ('" . implode(",", $education) . "')";
                 $result = $db->query($sql);
+                $educations = [];
                 while($row = $result->fetch_assoc()) {
-                   var_dump($row);exit;
+                   $educations[] = $row['id'];
                 }
             }
             if(!empty($existingCandidate)) {
@@ -211,7 +212,7 @@ else {
                         $relevantExp = 12;
                         break;
                 }
-                $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skillIds . "', subskills = '" . $skillIds . "', currentLocation = '" . $currentLocation . "', preferredLocation = '" . $preferredLocations . "', overallExperience = '" . $overallExp . "', relevantExperience = '" . $relevantExp . "', resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
+                $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skillIds . "', subskills = '" . $skillIds . "', currentLocation = '" . $currentLocation . "', preferredLocation = '" . $preferredLocations . "', overallExperience = '" . $overallExp . "', relevantExperience = '" . $relevantExp . "', education = '," . implode(",", $educations) . ",',  resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
             } else {
                 $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, currentLocation, preferredLocation, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skillIds."', '".$skillIds."', '".$currentLocation."', '".$preferredLocations."', '" . $resume . "', 'Created')";
             }
