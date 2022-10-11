@@ -182,6 +182,7 @@ else {
                 while($row = $result->fetch_assoc()) {
                    $educations[] = $row['id'];
                 }
+                var_dump($educations);exit;
             }
             if(!empty($existingCandidate)) {
                 switch ($existingCandidate['overallExperience']) {
