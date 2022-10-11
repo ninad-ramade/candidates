@@ -69,6 +69,7 @@ function getCandidates($filterData = []) {
         }
         if(!empty($row['education'])) {
             $row['education'] = array_filter(explode(",", $row['education']));
+            var_dump($row['education']);exit;
             $resultQualifications = array_merge($resultQualifications, $row['education']);
         }
         $row = array_merge(['sr' => $sr], $row);
