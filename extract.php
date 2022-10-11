@@ -180,9 +180,9 @@ else {
                 $result = $db->query($sql);
                 $educations = [];
                 while($row = $result->fetch_assoc()) {
+                    var_dump($row);exit;
                    $educations[] = $row['id'];
                 }
-                var_dump($educations);exit;
             }
             if(!empty($existingCandidate)) {
                 switch ($existingCandidate['overallExperience']) {
