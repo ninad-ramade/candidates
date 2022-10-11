@@ -174,6 +174,14 @@ else {
             $sql = "SELECT * FROM candidates WHERE email = '" . $email . "'";
             $result = $db->query($sql);
             $existingCandidate = mysqli_fetch_assoc($result);
+            if(!empty($existingCandidate['education'])) {
+                $education = array_map('trim', explode(",", $existingCandidate['education']));
+                $sql = "SELECT * FROM qualifications WHERE qualification IN ('" . implode(",", $education) . "')";
+                $result = $db->query($sql);
+                while($row = $result->fetch_assoc()) {
+                   var_dump($row);exit;
+                }
+            }
             if(!empty($existingCandidate)) {
                 switch ($existingCandidate['overallExperience']) {
                     case '0-3':
