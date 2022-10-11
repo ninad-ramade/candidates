@@ -91,6 +91,7 @@ function getCandidates($filterData = []) {
     }
     if(!empty($resultQualifications)) {
         $sql = "SELECT * FROM qualifications WHERE id IN (" . implode(",", array_unique($resultQualifications)) . ")";
+        var_dump($sql);exit;
         $result = $db->query($sql);
         $finalQualifications = [];
         while($row = $result->fetch_assoc()) {
