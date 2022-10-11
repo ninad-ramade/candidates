@@ -75,11 +75,13 @@ function getCandidates($filterData = []) {
         $candidates[] = $row;
         $sr++;
     }
-    $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
-    $result = $db->query($sql);
-    $finalSkills = [];
-    while($row = $result->fetch_assoc()) {
-        $finalSkills[$row['id']] = $row['skill'];
+    if(!empty($resultSkills)) {
+        $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
+        $result = $db->query($sql);
+        $finalSkills = [];
+        while($row = $result->fetch_assoc()) {
+            $finalSkills[$row['id']] = $row['skill'];
+        }
     }
     if(!empty($resultLocations)) {
         $sql = "SELECT * FROM locations WHERE id IN (" . implode(",", array_unique($resultLocations)) . ")";
