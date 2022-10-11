@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -69,7 +69,6 @@ function getCandidates($filterData = []) {
         }
         if(!empty($row['education'])) {
             $row['education'] = array_filter(explode(",", $row['education']));
-            var_dump($row['education']);exit;
             $resultQualifications = array_merge($resultQualifications, $row['education']);
         }
         $row = array_merge(['sr' => $sr], $row);
@@ -92,7 +91,6 @@ function getCandidates($filterData = []) {
     }
     if(!empty($resultQualifications)) {
         $sql = "SELECT * FROM qualifications WHERE id IN (" . implode(",", array_unique($resultQualifications)) . ")";
-        var_dump($sql);exit;
         $result = $db->query($sql);
         $finalQualifications = [];
         while($row = $result->fetch_assoc()) {
