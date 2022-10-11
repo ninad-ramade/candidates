@@ -31,10 +31,10 @@ function getCandidates($filterData = []) {
                     $innerWhere = $filter == 'salaryFrom' ? 'expectedCtc >= ' . $value : 'expectedCtc <= ' . $value;
                     array_push($where, '('. $innerWhere . ')');
                 } else if ($filter == 'overallExperienceFrom' || $filter == 'overallExperienceTo') {
-                    $innerWhere = $filter == 'overallExperienceFrom' ? 'overallExperience >= ' . $value : 'expectedCtc <= ' . $value;
+                    $innerWhere = $filter == 'overallExperienceFrom' ? 'overallExperience >= ' . $value : 'overallExperience <= ' . $value;
                     array_push($where, '('. $innerWhere . ')');
                 } else if ($filter == 'relevantExperienceFrom' || $filter == 'relevantExperienceTo') {
-                    $innerWhere = $filter == 'relevantExperienceFrom' ? 'overallExperience >= ' . $value : 'expectedCtc <= ' . $value;
+                    $innerWhere = $filter == 'relevantExperienceFrom' ? 'relevantExperience >= ' . $value : 'relevantExperience <= ' . $value;
                     array_push($where, '('. $innerWhere . ')');
                 }
                 else {
