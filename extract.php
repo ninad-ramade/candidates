@@ -78,9 +78,6 @@ function getSkillFromContent($content) {
     $allSkills = getSkills();
     $skills = [];
     foreach($allSkills as $eachSkill) {
-        if($eachSkill == 'SAP GRC') {
-            var_dump(strstr(strtolower($content), strtolower($eachSkill['skill'])));exit;
-        }
         if(!empty(strstr(strtolower($content), strtolower($eachSkill['skill'])))) {
             $skills['id'][] = $eachSkill['id'];
             $skills['skills'][] = $eachSkill['skill'];
