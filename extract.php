@@ -279,7 +279,7 @@ include 'menu.php';
 	<td><strong>Preferred Locations</strong></td>
 	<td><strong>Status</strong></td></tr>
 <?php foreach($allFiles as $file) { ?>
-<tr><td><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'profiles/unprocessed/' .$file['name']; ?>" target="blank"><?php echo $file['name']; ?></a></td>
+<tr><td><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'profiles/processed/' .$file['name']; ?>" target="blank"><?php echo $file['name']; ?></a></td>
 <td><?php echo !empty($file['email']) ? $file['email'] : ''; ?></td>
 <td><?php echo !empty($file['phone']) ? $file['phone'] : ''; ?></td>
 <td><?php echo !empty($file['skills']) ? $file['skills'] : ''; ?></td>
