@@ -77,6 +77,7 @@ function getCandidates($filterData = []) {
     }
     if(!empty($resultSkills)) {
         $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
+        var_dump($sql);exit;
         $result = $db->query($sql);
         $finalSkills = [];
         while($row = $result->fetch_assoc()) {
