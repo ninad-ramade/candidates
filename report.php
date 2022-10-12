@@ -64,12 +64,14 @@ function getCandidates($filterData = []) {
             $row['skills'] = array_filter(explode(",", $row['skills']));
             $resultSkills = array_merge($resultSkills, $row['skills']);
         }
-        if(!empty($row['currentLocation'])) {
+        if(!empty($row['currentLocation']) && !preg_match("/[a-z]/i", $row['currentLocation'])) {
             $row['currentLocation'] = array_filter(explode(",", $row['currentLocation']));
-            $row['preferredLocation'] = array_filter(explode(",", $row['preferredLocation']));
-            $resultLocations = array_merge($resultLocations, $row['preferredLocation']);
+            if(!preg_match("/[a-z]/i", $row['preferredLocation'])) {
+                $row['preferredLocation'] = array_filter(explode(",", $row['preferredLocation']));
+                $resultLocations = array_merge($resultLocations, $row['preferredLocation']);
+            }
         }
-        if(!empty($row['education'])) {
+        if(!empty($row['education']) && !preg_match("/[a-z]/i", $row['education'])) {
             $row['education'] = array_filter(explode(",", $row['education']));
             $resultQualifications = array_merge($resultQualifications, $row['education']);
         }
