@@ -60,8 +60,10 @@ function getCandidates($filterData = []) {
     $resultQualifications = [];
     while($row = $result->fetch_assoc()) {
         unset($row['subskills']);
-        $row['skills'] = array_filter(explode(",", $row['skills']));
-        $resultSkills = array_merge($resultSkills, $row['skills']);
+        if(!preg_match("/[a-z]/i", $row['skills'])){
+            $row['skills'] = array_filter(explode(",", $row['skills']));
+            $resultSkills = array_merge($resultSkills, $row['skills']);
+        }
         if(!empty($row['currentLocation'])) {
             $row['currentLocation'] = array_filter(explode(",", $row['currentLocation']));
             $row['preferredLocation'] = array_filter(explode(",", $row['preferredLocation']));
