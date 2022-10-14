@@ -13,7 +13,7 @@ function getCandidates($filterData = []) {
     $sql = "SELECT * FROM candidates";
     global $where;
     $where = [];
-    if(!empty(array_filter($filterData['skills']))) {
+    if(!empty($filterData['skills']) && !empty(array_filter($filterData['skills']))) {
         $skills = getSkills($filterData['skills']);
         $skills = getSkills(null, array_column($skills, 'groupParent'));
         $filterData['skills'] = array_column($skills, 'id');
@@ -38,11 +38,15 @@ function getCandidates($filterData = []) {
                     array_push($where, '('. $innerWhere . ')');
                 }
                 else {
-                    foreach($value as $eachval) {
-                        $innerWhere[] = $filter . ' like "%,'. $eachval .',%"';
+                    if(is_array($value)) {
+                        foreach($value as $eachval) {
+                            $innerWhere[] = $filter . ' like "%,'. $eachval .',%"';
+                        }
+                    } else {
+                        $innerWhere[] = $filter . ' like "%'. $value .'%"';
                     }
-                    array_push($where, '('. implode(" OR ", $innerWhere) . ')');
                 }
+                array_push($where, '('. implode(" OR ", $innerWhere) . ')');
             }
         }
     }
@@ -381,7 +385,7 @@ include 'menu.php'; ?>
 	</div>
 	<div class="col-lg-2">
 		<label for="email">Email</label>
-		<input id="email" type="email" name="email" class="form-control" value="<?php !empty($_POST['email']) ? $_POST['email'] : ''; ?>" />
+		<input id="email" type="email" name="email" class="form-control" value="<?php echo !empty($_POST['email']) ? $_POST['email'] : ''; ?>" />
 	</div>
 </div>
 <div class="row actionRow">
