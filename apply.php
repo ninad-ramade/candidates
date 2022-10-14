@@ -2,10 +2,8 @@
 <head>
 <title>Application</title>
 <script>
-window.setTimeout(CloseMe, 3000);
-function CloseMe() {
-    self.close();
-}
+var customWindow = window.open('', '_blank', '');
+setTimeout(customWindow.close(), 3000);
 </script>
 </head>
 <body>
