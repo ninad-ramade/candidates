@@ -1,3 +1,11 @@
+<html>
+<head>
+<title>Application</title>
+<script>
+ setTimeout(window.close, 3000);
+</script>
+</head>
+<body>
 <?php 
 //ini_set('display_errors', 1);
 include_once 'config.php';
@@ -36,6 +44,5 @@ if(!$mail->Send()) {
 }
 echo 'Applied Successfully. This window will close automatically.';
 ?>
-<script>
- setTimeout(window.close, 3000);
-</script>
+</body>
+</html>
