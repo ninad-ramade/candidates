@@ -2,7 +2,7 @@
 <head>
 <title>Application</title>
 <script>
-var customWindow = window.open('', '_blank', '');
+var customWindow = window.open('', '_self');
 setTimeout(customWindow.close(), 3000);
 </script>
 </head>
