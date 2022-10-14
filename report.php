@@ -178,6 +178,7 @@ function getVendors() {
     return $vendors;
 }
 function sendEmail($email, $name, $id, $body) {
+    $protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
     $fromEmail = $_SESSION['user']['email'];
     $mail = new PHPMailer();
     $mail->setFrom($fromEmail, "RTJobs");
@@ -193,6 +194,7 @@ function sendEmail($email, $name, $id, $body) {
     return true;
 }
 function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
+    $protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
     $fromEmail = $_SESSION['user']['email'];
     $mail = new PHPMailer();
     $mail->setFrom($fromEmail, "RTJobs");
