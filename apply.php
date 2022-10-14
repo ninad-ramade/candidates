@@ -2,7 +2,7 @@
 <head>
 <title>Application</title>
 <script>
-setTimeout(window.close(), 3000);
+setTimeout(close(), 3000);
 </script>
 </head>
 <body>
