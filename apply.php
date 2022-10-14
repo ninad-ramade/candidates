@@ -1,10 +1,6 @@
 <html>
 <head>
 <title>Application</title>
-<script>
-var customWindow = window.open('', '_self');
-setTimeout(customWindow.close(), 3000);
-</script>
 </head>
 <body>
 <?php 
@@ -43,7 +39,7 @@ if(!$mail->Send()) {
     echo 'Application failed as email not sent. Please contact HR.';
     exit;
 }
-echo 'Applied Successfully. This window will close automatically.';
+echo 'Applied Successfully. You may close this window.';
 ?>
 </body>
 </html>
