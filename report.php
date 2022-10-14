@@ -291,6 +291,14 @@ function validateEmail(e) {
 	}
 	return true;
 }
+function validateSearch(e) {
+	if(document.getElementById("skills").value == '' || document.getElementById("email").value == '') {
+		alert('Please select a skill or email.');
+		e.preventDefault();
+		return false;
+	}
+	return true;
+}
 </script>
 <?php 
 include 'header.php';
@@ -318,7 +326,7 @@ include 'menu.php'; ?>
 <div class="row">
 	<div class="col-lg-2">
     	<label for="skills">Skills/Keywords</label>
-        <select required id="skills" name="skills[]" multiple="multiple" class="form-control">
+        <select id="skills" name="skills[]" multiple="multiple" class="form-control">
         <option value="">Select</option>
         <?php foreach($skills as $eachskill) { ?>
         <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['groupParent'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
@@ -371,10 +379,14 @@ include 'menu.php'; ?>
     	<input name="salaryFrom" id="salaryFrom" class="form-control" type="text" placeholder="From" value="<?php echo !empty($_POST['salaryFrom']) ? $_POST['salaryFrom'] : ''; ?>" />
 		<input name="salaryTo" id="salaryTo" class="form-control" type="text" placeholder="To" value="<?php echo !empty($_POST['salaryTo']) ? $_POST['salaryTo'] : ''; ?>" />
 	</div>
+	<div class="col-lg-2">
+		<label for="email">Email</label>
+		<input id="email" type="email" name="email" value="<?php !empty(['email']) ? $_POST['email'] : ''; ?>" />
+	</div>
 </div>
 <div class="row actionRow">
 	<div class="col-lg-2">
-		<input type="submit" name="submit" class="btn btn-primary" value="Search" />
+		<input type="submit" name="submit" onclick="validateSearch(event)" class="btn btn-primary" value="Search" />
 		<input type="submit" name="submit" class="btn btn-primary" value="Reset" />
 	</div>
 </div>
