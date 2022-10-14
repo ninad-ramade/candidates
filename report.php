@@ -292,7 +292,7 @@ function validateEmail(e) {
 	return true;
 }
 function validateSearch(e) {
-	if(document.getElementById("skills").value == '' || document.getElementById("email").value == '') {
+	if(document.getElementById("skills").value == '' && document.getElementById("email").value == '') {
 		alert('Please select a skill or email.');
 		e.preventDefault();
 		return false;
