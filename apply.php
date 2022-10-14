@@ -23,15 +23,6 @@ $subjectArray[0] = 'Applied';
 $subject = implode(" ", $subjectArray);
 $recipient = 'rapid.jobs12@gmail.com';
 $mail = new PHPMailer();
-$mail->IsSMTP();
-$mail->Mailer = "smtp";
-//$mail->SMTPDebug  = 1;
-$mail->SMTPAuth   = TRUE;
-$mail->SMTPSecure = "tls";
-$mail->Port       = 587;
-$mail->Host       = "smtp.gmail.com";
-$mail->Username   = $recipient;
-$mail->Password   = "howzfglpuhfruwjy";
 $mail->IsHTML(true);
 $mail->AddAddress($recipient);
 $mail->SetFrom($application['email'], $application['email']);
@@ -40,7 +31,7 @@ $mail->Subject = $subject;
 $content = 'Hi,<br/><br/>I am interested for this position.<br/><br/>Thanks';
 $mail->MsgHTML($content);
 if(!$mail->Send()) {
-    echo 'Application failed. Please contact HR.';
+    echo 'Application failed as email not sent. Please contact HR.';
     exit;
 }
 echo 'Applied Successfully. This window will close automatically.';
