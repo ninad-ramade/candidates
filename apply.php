@@ -13,7 +13,6 @@ $db = new mysqli(servername, username, password, dbname);
 $sql = "SELECT applications.*, users.email as adminEmail FROM applications LEFT JOIN users ON applications.emailSentBy = users.id WHERE applications.id = " . $applicationId;
 $result = $db->query($sql);
 $application = mysqli_fetch_assoc($result);
-var_dump($application);exit;
 $sql = "UPDATE applications set appliedOn = '" . date('Y-m-d H:i:s') . "', status = 'Applied' WHERE id = " . $applicationId;
 if(!$db->query($sql) === TRUE) {
     echo 'Application failed. Please contact HR.';
@@ -22,7 +21,7 @@ if(!$db->query($sql) === TRUE) {
 $subjectArray = explode(' ', $application['subject']);
 $subjectArray[0] = 'Applied';
 $subject = implode(" ", $subjectArray);
-$recipient = 'rapid.jobs12@gmail.com';
+$recipient = $application['adminEmail'];
 $mail = new PHPMailer();
 $mail->IsHTML(true);
 $mail->AddAddress($recipient);
