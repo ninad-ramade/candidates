@@ -2,7 +2,10 @@
 <head>
 <title>Application</title>
 <script>
-setTimeout("window.close()", 3000);
+window.setTimeout(CloseMe, 3000);
+function CloseMe() {
+    self.close();
+}
 </script>
 </head>
 <body>
