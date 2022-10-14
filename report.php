@@ -254,7 +254,7 @@ if(!empty($_POST['submit'])) {
                 if(!empty($data['preferredLocation'])) {
                     $subject .= " at " . implode(", ", array_intersect_key($candidateLocations, array_flip($data['preferredLocation']))) . " location";
                 }
-                $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentOn, subject, status) VALUES (" . $_POST['vendor'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
+                $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $_POST['vendor'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', " . $_SESSION['user']['id'] . ", '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                 if($db->query($sql) === TRUE) {
                     $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $_POST['customBody']);
                     if($customEmailResponse !== true) {

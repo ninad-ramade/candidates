@@ -10,7 +10,7 @@ require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/SMTP.php';
 $applicationId = !empty($_GET['id']) ? base64_decode($_GET['id']) : '';
 $db = new mysqli(servername, username, password, dbname);
-$sql = "SELECT * FROM applications WHERE id = " . $applicationId;
+$sql = "SELECT applications.*, users.email as adminEmail FROM applications LEFT JOIN users ON applications.emailSentBy = users.id WHERE applications.id = " . $applicationId;
 $result = $db->query($sql);
 $application = mysqli_fetch_assoc($result);
 $sql = "UPDATE applications set appliedOn = '" . date('Y-m-d H:i:s') . "', status = 'Applied' WHERE id = " . $applicationId;
