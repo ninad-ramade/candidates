@@ -195,9 +195,9 @@ function sendEmail($email, $name, $id, $body) {
 function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
     $fromEmail = $_SESSION['user']['email'];
     $mail = new PHPMailer();
-    $mail->setFrom($fromEmail, "RTJobs");
+    $mail->setFrom('srinathgb@gmail.com', "RTJobs");
     $mail->AddAddress($email, $name);
-    $mail->AddReplyTo($fromEmail, "RTJobs");
+    $mail->AddReplyTo('srinathgb@gmail.com', "RTJobs");
     $mail->IsHTML(true);
     $mail->Subject = $subject;
     $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/><a href="' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'apply.php?id=' . base64_encode($applicationId) . '" target="blank">Apply Now</a><br/><br/>Thanks<br/><br/>RT Jobs';
