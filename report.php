@@ -385,7 +385,7 @@ include 'menu.php'; ?>
 	</div>
 	<div class="col-lg-2">
 		<label for="email">Email</label>
-		<input id="email" type="email" name="email" class="form-control" value="<?php echo !empty($_POST['email']) ? $_POST['email'] : ''; ?>" />
+		<input id="email" type="text" name="email" class="form-control" value="<?php echo !empty($_POST['email']) ? $_POST['email'] : ''; ?>" />
 	</div>
 </div>
 <div class="row actionRow">
