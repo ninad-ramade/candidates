@@ -1,5 +1,5 @@
 <?php
-//ini_set('display_errors', 1);
+ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -247,7 +247,7 @@ if(!empty($_POST['submit'])) {
         } else if($_POST['submit'] == 'Send custom email') {
             $failedEmails = [];
             foreach ($candidates as $candidate) {
-                $subject = "Profile for " . implode(", ", array_intersect_key($candidateSkills, array_flip($data['skills'])));
+                $subject = "Profile for " . (!empty($data['skills']) ? implode(", ", array_intersect_key($candidateSkills, array_flip($data['skills']))) : implode(", ", $candidateSkills));
                 if(!empty($data['overallExperience'])) {
                     $subject .= " with " . implode(", ", $data['overallExperience']) . " Years experience";
                 }
