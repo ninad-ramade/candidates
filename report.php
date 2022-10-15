@@ -335,6 +335,10 @@ if(!empty($_POST['submit'])) {
                     $result = $db->query($locationSql);
                     $location = mysqli_fetch_assoc($result);
                     $state = getStateByText($candidate['state']);
+                    if(empty($state)) {
+                        $errors[] = $candidate['emailid'] . ' failed: Incorrect State.';
+                        continue;
+                    }
                     $sql = "SELECT * FROM candidates WHERE email = '" . $candidate['emailid'] . "'";
                     $result = $db->query($sql);
                     $existingCandidate = mysqli_fetch_assoc($result);
