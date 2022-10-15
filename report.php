@@ -339,9 +339,9 @@ if(!empty($_POST['submit'])) {
                     $result = $db->query($sql);
                     $existingCandidate = mysqli_fetch_assoc($result);
                     if(!empty($existingCandidate)) {
-                        $sql = "UPDATE candidates SET name = '" . $candidate['name'] . "', mobile = '" . $candidate['mobile'] . "', skills = ',172,', currentLocation = '," . $location['id'] . ",', preferredLocation = '," . $location['id'] . ",', stateId = '" . $state['id'] . "', gender = '" . $candidate['gender'] . "' WHERE email = '" . $candidate['emailid'] . "'";
+                        $sql = "UPDATE candidates SET name = '" . $candidate['name'] . "', mobile = '" . $candidate['mobile'] . "', skills = ',172,', currentLocation = '," . $location['id'] . ",', preferredLocation = '," . $location['id'] . ",', currentCompany = '" . $candidate['company'] . "', currentCtc = '" . $candidate['ctc'] . "', stateId = '" . $state['id'] . "', gender = '" . $candidate['gender'] . "' WHERE email = '" . $candidate['emailid'] . "'";
                     } else {
-                        $sql = "INSERT INTO candidates (name, mobile, email, skills, currentLocation, preferredLocation, stateId, gender, status) VALUES ('" . $candidate['name'] . "', '" . $candidate['mobile'] . "', '" . $candidate['emailid'] . "', ',172,', '," . $location['id'] . ",', '," . $location['id'] . ",', '" . $state['id'] . "', '" . $candidate['gender'] . "', 'Created')";
+                        $sql = "INSERT INTO candidates (name, mobile, email, skills, currentLocation, preferredLocation, currentCompany, currentCtc, stateId, gender, status) VALUES ('" . $candidate['name'] . "', '" . $candidate['mobile'] . "', '" . $candidate['emailid'] . "', ',172,', '," . $location['id'] . ",', '," . $location['id'] . ",', '" . $candidate['company'] . "', '" . $candidate['ctc'] . "', '" . $state['id'] . "', '" . $candidate['gender'] . "', 'Created')";
                     }
                     $errors = [];
                     try {
