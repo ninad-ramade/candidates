@@ -7,7 +7,6 @@ use PHPMailer\PHPMailer\Exception;
 require_once 'vendor/autoload.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once __DIR__ . '/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/IOFactory.php';
 session_start();
 function getCandidates($filterData = []) {
     $db = new mysqli(servername, username, password, dbname);
