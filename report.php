@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -149,6 +149,30 @@ function getLocations($id = null) {
     $db->close();
     return $locations;
 }
+function getStates($id = null) {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM states";
+    if(!empty($id)) {
+        $sql .= " WHERE id IN (" . implode(",", array_filter($id)) . ")";
+    }
+    $sql .= " ORDER BY state ASC";
+    $result = $db->query($sql);
+    $states = [];
+    if ($result->num_rows < 1) {
+        return $states;
+    }
+    while($row = $result->fetch_assoc()) {
+        $states[] = $row;
+    }
+    $db->close();
+    return $states;
+}
+function getStateByText($state) {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM states WHERE LOWER(state) = '" . strtolower($state) . "'";
+    $result = $db->query($sql);
+    return mysqli_fetch_assoc($result);
+}
 function getQualifications($id = null) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM qualifications";
@@ -286,18 +310,53 @@ if(!empty($_POST['submit'])) {
                 $highestColumn = $objWorksheet->getHighestColumn();
                 $highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn);
                 $result = [];
+                $expectedColumns = ['Name', 'Mobile', 'Email ID', 'Location', 'State', 'Gender', 'Company', 'CTC'];
                 /* Read from csv */
                 for ($row = 1; $row <= $highestRow; $row++) {
                     $fileData = Array();
                     for ($col = 0; $col < $highestColumnIndex; ++$col) {
                         $value = $objWorksheet->getCellByColumnAndRow($col, $row)->getFormattedValue();
-                        if(!empty(trim($value))) {
-                            $fileData[$col] = trim($value);
+                        if($row == 1 && $expectedColumns[$col] != $value) {
+                            echo 'Column ' . ($col + 1) . ' should be ' .  $expectedColumns[$col];
+                        }
+                        else {
+                            if(!empty(trim($value))) {
+                                $fileData[str_replace(' ', '', strtolower($expectedColumns[$col]))] = trim($value);
+                            }
                         }
                     }
                     $result[] = $fileData;
                 }
-                var_dump($result);exit;
+                foreach($result as $key => $candidate) {
+                    if($key == 0) {
+                        continue;
+                    }
+                    $locationSql = 'SELECT id FROM locations WHERE LOWER(location) = "' . strtolower($candidate['location']) . '"';
+                    $result = $db->query($locationSql);
+                    $location = mysqli_fetch_assoc($result);
+                    $state = getStateByText($candidate['state']);
+                    $sql = "SELECT * FROM candidates WHERE email = '" . $candidate['emailid'] . "'";
+                    $result = $db->query($sql);
+                    $existingCandidate = mysqli_fetch_assoc($result);
+                    if(!empty($existingCandidate)) {
+                        $sql = "UPDATE candidates SET name = '" . $candidate['name'] . "', mobile = '" . $candidate['mobile'] . "', skills = ',172,', currentLocation = '," . $location['id'] . ",', preferredLocation = '," . $location['id'] . ",', stateId = '" . $state['id'] . "', gender = '" . $candidate['gender'] . "' WHERE email = '" . $candidate['emailid'] . "'";
+                    } else {
+                        $sql = "INSERT INTO candidates (name, mobile, email, skills, currentLocation, preferredLocation, stateId, gender, status) VALUES ('" . $candidate['name'] . "', '" . $candidate['mobile'] . "', '" . $candidate['emailid'] . "', ',172,', '," . $location['id'] . ",', '," . $location['id'] . ",', '" . $state['id'] . "', '" . $candidate['gender'] . "', 'Created')";
+                    }
+                    $errors = [];
+                    try {
+                        if($db->query($sql) === TRUE) {
+                            $importStatus = 'Success';
+                        } else {
+                            $errors[] = $candidate['emailid'] . ' failed: ' . $db->error;
+                        }
+                    } catch (Exception $e) {
+                        $errors[] = $candidate['emailid'] . ' failed: ' . $e->getMessage();
+                    }
+                }
+                if(!empty($errors)) {
+                    echo implode(", ", $errors);
+                }
             }
         }
         $db->close();
