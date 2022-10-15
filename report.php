@@ -1,5 +1,5 @@
 <?php
-//ini_set('display_errors', 1);
+ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -7,6 +7,7 @@ use PHPMailer\PHPMailer\Exception;
 require_once 'vendor/autoload.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require_once __DIR__ . '/vendor/phpoffice/phpspreadsheet/src/PhpSpreadsheet/IOFactory.php';
 session_start();
 function getCandidates($filterData = []) {
     $db = new mysqli(servername, username, password, dbname);
@@ -267,6 +268,38 @@ if(!empty($_POST['submit'])) {
             } else {
                 echo 'All custom emails sent successfully';
             }
+        } else if($_POST['submit'] == 'Import Candidates') {
+            $importFile = $_FILES['import'];
+            if(!in_array(strtolower(pathinfo($importFile['name'], PATHINFO_EXTENSION)), ['csv', 'xls', 'xlsx'])) {
+                echo 'Invalid file type. Only CSV or Excel files are allowed, please select a valid file.';
+            } else {
+                $fileName = 'Candidate_Import_';
+                $date = date('Y_m_d_h_i_s');
+                $importPath = 'assets/import/candidates/';
+                $fileUrl = $importPath . $fileName . $date;
+                if (!move_uploaded_file($importFile['tmp_name'], $fileUrl)) {
+                    echo 'File could not be uploaded. Please try again.';
+                }
+                $fileType = \PHPExcel_IOFactory::identify($fileUrl);
+                $reader = \PHPExcel_IOFactory::createReader($fileType)->load($fileUrl);
+                $objWorksheet = $reader->setActiveSheetIndex(0);
+                $highestRow = $objWorksheet->getHighestRow();
+                $highestColumn = $objWorksheet->getHighestColumn();
+                $highestColumnIndex = \PHPExcel_Cell::columnIndexFromString($highestColumn);
+                $result = [];
+                /* Read from csv */
+                for ($row = 1; $row <= $highestRow; $row++) {
+                    $fileData = Array();
+                    for ($col = 0; $col < $highestColumnIndex; ++$col) {
+                        $value = $objWorksheet->getCellByColumnAndRow($col, $row)->getFormattedValue();
+                        if(!empty(trim($value))) {
+                            $fileData[$col] = trim($value);
+                        }
+                    }
+                    $result[] = $fileData;
+                }
+                var_dump($result);exit;
+            }
         }
         $db->close();
     }
@@ -303,12 +336,20 @@ function validateSearch(e) {
 	}
 	return true;
 }
+function validateImport(e) {
+	if(document.getElementById("import").value == '') {
+		alert('Please select a csv or excel file.');
+		e.preventDefault();
+		return false;
+	}
+	return true;
+}
 </script>
 <?php 
 include 'header.php';
 include 'menu.php'; ?>
 
-<form action="report.php" method="post">
+<form action="report.php" method="post" enctype="multipart/form-data">
 	<div class="row">
         <div class="col-lg-2">
             <textarea id="customBody" name="customBody" class="form-control" placeholder="Email body"></textarea>
@@ -321,9 +362,18 @@ include 'menu.php'; ?>
             	<?php } ?>
             </select>
        	</div>
-       	<div class="col-lg-4">
+       	<div class="col-lg-3">
             <input type="submit" name="submit" class="btn btn-primary" onclick="validateCustomEmail(event)" value="Send custom email" />
             <input type="submit" name="submit" class="btn btn-primary" onclick="validateEmail(event)" value="Send email to candidates to update" />
+        </div>
+        <div class="col-lg-2">
+        	<input type="file" name="import" accept=".csv,.xlsx,.xls" id="import" class="form-control" />Only csv, xlsx and xls files are allowed.
+        </div>
+        <div class="col-lg-1">
+        	<input type="submit" name="submit" class="btn btn-success" onclick="validateImport(event)" value="Import Candidates" />
+        </div>
+        <div class="col-lg-1">
+        	<a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'assets/import_template.xlsx'; ?>" class="btn btn-success">Template</a>
         </div>
   	</div>
 <h3>Resume List</h3>
