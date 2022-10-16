@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -263,7 +263,7 @@ if(!empty($_POST['submit'])) {
         if($_POST['submit'] == 'Send email to candidates to update') {
             foreach ($candidates as $candidate) {
                 if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody'])) {
-                    $sql = "UPDATE candidates SET status = 'Email sent' WHERE id = " . $candidate['id'];
+                    $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
                     $db->query($sql);
                 }
             }
@@ -304,6 +304,8 @@ if(!empty($_POST['submit'])) {
                     echo 'File could not be uploaded. Please try again.';
                 }
                 else {
+                    ini_set("memory_limit", "-1");
+                    set_time_limit(0);
                     $fileType = \PHPExcel_IOFactory::identify($fileUrl);
                     $reader = \PHPExcel_IOFactory::createReader($fileType)->load($fileUrl);
                     $objWorksheet = $reader->setActiveSheetIndex(0);
