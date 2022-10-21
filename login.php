@@ -30,7 +30,7 @@ include 'header.php';
 ?>
 <div class="container-fluid">
 <div class="row">
-	<div class="section"><img class="logo" alt="RapidTech" src="assets/logo.jpeg"></div>
+	<div class="section"><img class="logo" alt="RapidTech" src="assets/logo.png"></div>
 	<div class="section">
     	<div class="loginBrand">RAPID Jobs</div>
         <div class="loginWrapper col-lg-6">
