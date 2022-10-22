@@ -563,11 +563,11 @@ include 'menu.php'; ?>
 	<div class="col-lg-8 pagination">
 		<ul class="pagination">
 			<?php if($candidatesData['totalRecords'] > $limit) { ?>
-				<li class="previous <?php echo $start == 0 ? ' disabled' : ''; ?>"><a href="javascript:void(0)" onclick="setPagination(<?php echo $limit - $start; ?>);">Previous</a></li>
+				<li class="previous<?php echo $start == 0 ? ' disabled' : ''; ?>"><a href="javascript:void(0)" onclick="setPagination(<?php echo $limit - $start; ?>);">Previous</a></li>
     			<?php for($page = 0; $page < $candidatesData['totalRecords']/$limit; $page++) {?>
-                <li class="<?php echo $start/$limit == $page ? 'active' : ''?>"><a href="javascript:void(0)" onclick="setPagination(<?php echo $page * $limit; ?>);"><?php echo $page + 1; ?></a></li>
+                <li class="<?php echo $start/$limit == $page ? 'active' : ''; ?>"><a href="javascript:void(0)" onclick="setPagination(<?php echo $page * $limit; ?>);"><?php echo $page + 1; ?></a></li>
                 <?php } ?>
-  				<li class="next"><a href="javascript:void(0)" onclick="setPagination(<?php echo $start + $limit; ?>);">Next</a></li>
+  				<li class="next<?php echo $candidatesData['totalRecords'] < ($start + $limit) ? ' disabled' : ''; ?>"><a href="javascript:void(0)" onclick="setPagination(<?php echo $start + $limit; ?>);">Next</a></li>
   			<?php } ?>
         </ul>
   	</div>
