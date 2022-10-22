@@ -63,10 +63,10 @@ function getCandidates($filterData = [], $start, $limit) {
     if ($result->num_rows < 1) {
         return $candidates;
     }
-    $sr = 1;
     $resultSkills = [];
     $resultLocations = [];
     $resultQualifications = [];
+    $sr = $start + 1;
     while($row = $result->fetch_assoc()) {
         unset($row['subskills']);
         if(!preg_match("/[a-z]/i", $row['skills'])){
@@ -84,7 +84,7 @@ function getCandidates($filterData = [], $start, $limit) {
             $row['education'] = array_filter(explode(",", $row['education']));
             $resultQualifications = array_merge($resultQualifications, $row['education']);
         }
-        $row = array_merge(['sr' => $sr * (($start/$limit) + 1)], $row);
+        $row = array_merge(['sr' => $sr], $row);
         $candidates[] = $row;
         $sr++;
     }
