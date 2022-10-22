@@ -239,7 +239,7 @@ else {
             $eachFile['preferredLoc'] = implode(", ", $locations['locations']);
         }
         $allFiles[] = $eachFile;
-    }exit;
+    }
     echo 'Extracted all profiles successfully.';
     $db->close();
 }
