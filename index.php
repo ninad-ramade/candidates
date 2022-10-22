@@ -380,7 +380,6 @@ function loadSkills(it) {
         		option.innerHTML = e.skill;
         		document.getElementById('skills').append(option);
         	});
-        	$('#skills').select2({placeholder: 'Select an option'});
         }
     }
 	xhr.send("it=" + it);
