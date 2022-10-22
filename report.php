@@ -297,7 +297,7 @@ if(!empty($_POST['submit'])) {
         $candidateQualifications = $candidatesData['qualifications'];
         if($_POST['submit'] == 'Send email to candidates to update') {
             foreach ($allCandidates as $candidate) {
-                if(strstr($candidate['skills'], 172) != false && !empty($candidate['resume'])) {
+                if(in_array(172, $candidate['skills']) && !empty($candidate['resume'])) {
                     continue;
                 }
                 if(date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s')) {
@@ -311,7 +311,7 @@ if(!empty($_POST['submit'])) {
         } else if($_POST['submit'] == 'Send custom email') {
             $failedEmails = [];
             foreach ($allCandidates as $candidate) {
-                if(strstr($candidate['skills'], 172) != false && !empty($candidate['resume'])) {
+                if(in_array(172, $candidate['skills']) && !empty($candidate['resume'])) {
                     continue;
                 }
                 $subject = "Profile for " . (!empty($data['skills']) ? implode(", ", array_intersect_key($candidateSkills, array_flip($data['skills']))) : implode(", ", $candidateSkills));
