@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 include_once 'config.php';
 session_start();
 $resumeDir = 'profiles/unprocessed';
@@ -160,9 +160,10 @@ else {
         $email = getEmailFromContent($content);
         $phone = getPhoneFromContent($content);
         $skills = getSkillFromContent($content);
-        var_dump($skills);
-        $skillIds = "," . implode(",", $skills['id']) . ",";
-        $skillTexts = implode(", ", $skills['skills']);
+        if(!empty($skills)) {
+            $skillIds = "," . implode(",", $skills['id']) . ",";
+            $skillTexts = implode(", ", $skills['skills']);
+        }
         $locations = getLocationsFromContent($content);
         if(!empty($locations)) {
             $locationIds = $locations['id'];
