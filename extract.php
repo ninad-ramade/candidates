@@ -160,7 +160,7 @@ else {
         $email = getEmailFromContent($content);
         $phone = getPhoneFromContent($content);
         $skills = getSkillFromContent($content);
-        var_dump($skills);exit;
+        var_dump($skills);
         $skillIds = "," . implode(",", $skills['id']) . ",";
         $skillTexts = implode(", ", $skills['skills']);
         $locations = getLocationsFromContent($content);
@@ -238,7 +238,7 @@ else {
             $eachFile['preferredLoc'] = implode(", ", $locations['locations']);
         }
         $allFiles[] = $eachFile;
-    }
+    }exit;
     echo 'Extracted all profiles successfully.';
     $db->close();
 }
