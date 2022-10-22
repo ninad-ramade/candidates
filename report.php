@@ -296,6 +296,7 @@ if(!empty($_POST['submit'])) {
         $candidateLocations = $candidatesData['locations'];
         $candidateQualifications = $candidatesData['qualifications'];
         if($_POST['submit'] == 'Send email to candidates to update') {
+            ini_set('max_execution_time', 0);
             foreach ($allCandidates as $candidate) {
                 if(in_array(172, $candidate['skills']) && !empty($candidate['resume'])) {
                     continue;
@@ -309,6 +310,7 @@ if(!empty($_POST['submit'])) {
             }
             echo 'Email sent successfully';
         } else if($_POST['submit'] == 'Send custom email') {
+            ini_set('max_execution_time', 0);
             $failedEmails = [];
             foreach ($allCandidates as $candidate) {
                 if(in_array(172, $candidate['skills']) && !empty($candidate['resume'])) {
@@ -347,6 +349,7 @@ if(!empty($_POST['submit'])) {
                     echo 'File could not be uploaded. Please try again.';
                 }
                 else {
+                    ini_set('max_execution_time', 0);
                     ini_set("memory_limit", "-1");
                     set_time_limit(0);
                     $fileType = \PHPExcel_IOFactory::identify($fileUrl);

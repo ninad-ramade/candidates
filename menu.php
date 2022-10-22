@@ -19,7 +19,7 @@ if(empty($email) && $mode != 'new') {
 		<li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'user.php'; ?>">Create User</a></li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
-      <li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'login.php'; ?>">Logout</a></li>
+      <li><?php echo $_SESSION['user']['name']; ?><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'login.php'; ?>">Logout</a></li>
     </ul>
   </div>
 </nav>
