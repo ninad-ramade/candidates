@@ -593,8 +593,6 @@ include 'menu.php'; ?>
     			<?php for($page = 0; $page < $candidatesData['totalRecords']/$limit; $page++) {
     			    if($page - ($start/$limit) <= 9) {?>
                 		<li class="<?php echo $start/$limit == $page ? 'active' : ''; ?>"><a href="javascript:void(0)" onclick="setPagination(<?php echo $page * $limit; ?>);"><?php echo $page + 1; ?></a></li>
-                	<?php } else { ?>
-                		<li class="disabled">...</li>
                 	<?php } ?>
                 <?php } ?>
   				<li class="next<?php echo $candidatesData['totalRecords'] < ($start + $limit) ? ' disabled' : ''; ?>"><a href="javascript:void(0)" <?php if($candidatesData['totalRecords'] > ($start + $limit)) { ?>onclick="setPagination(<?php echo $start + $limit; ?>);"<?php } ?>>Next</a></li>
