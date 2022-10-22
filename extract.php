@@ -160,6 +160,7 @@ else {
         $email = getEmailFromContent($content);
         $phone = getPhoneFromContent($content);
         $skills = getSkillFromContent($content);
+        var_dump($skills);exit;
         $skillIds = "," . implode(",", $skills['id']) . ",";
         $skillTexts = implode(", ", $skills['skills']);
         $locations = getLocationsFromContent($content);
