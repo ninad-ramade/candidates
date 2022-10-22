@@ -60,6 +60,7 @@ function getCandidates($filterData = [], $start, $limit) {
     $sql .= ' LIMIT ' . $start . ', ' . $limit;
     $result = $db->query($sql);
     $candidates = [];
+    $allCandidates = [];
     if ($result->num_rows < 1) {
         return $candidates;
     }
@@ -88,6 +89,29 @@ function getCandidates($filterData = [], $start, $limit) {
         $candidates[] = $row;
         $sr++;
     }
+    if ($countResult->num_rows > 0) {
+        while($row = $countResult->fetch_assoc()) {
+            unset($row['subskills']);
+            if(!preg_match("/[a-z]/i", $row['skills'])){
+                $row['skills'] = array_filter(explode(",", $row['skills']));
+                $resultSkills = array_merge($resultSkills, $row['skills']);
+            }
+            if(!empty($row['currentLocation']) && !preg_match("/[a-z]/i", $row['currentLocation'])) {
+                $row['currentLocation'] = array_filter(explode(",", $row['currentLocation']));
+                if(!preg_match("/[a-z]/i", $row['preferredLocation'])) {
+                    $row['preferredLocation'] = array_filter(explode(",", $row['preferredLocation']));
+                    $resultLocations = array_merge($resultLocations, $row['preferredLocation']);
+                }
+            }
+            if(!empty($row['education']) && !preg_match("/[a-z]/i", $row['education'])) {
+                $row['education'] = array_filter(explode(",", $row['education']));
+                $resultQualifications = array_merge($resultQualifications, $row['education']);
+            }
+            $row = array_merge(['sr' => $sr], $row);
+            $allCandidates[] = $row;
+            $sr++;
+        }
+    }
     if(!empty($resultSkills)) {
         $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
         $result = $db->query($sql);
@@ -113,7 +137,7 @@ function getCandidates($filterData = [], $start, $limit) {
         }
     }
     $db->close();
-    return ['candidates' => $candidates, 'totalRecords' => $countResult->num_rows, 'skills' => $finalSkills, 'locations' => $finalLocations, 'qualifications' => $finalQualifications];
+    return ['candidates' => $candidates, 'totalRecords' => $countResult->num_rows, 'allCandidates' => $allCandidates, 'skills' => $finalSkills, 'locations' => $finalLocations, 'qualifications' => $finalQualifications];
 }
 function getSkills($id = null, $groupParent = null) {
     $db = new mysqli(servername, username, password, dbname);
@@ -243,6 +267,7 @@ function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
     return true;
 }
 $candidates = [];
+$allCandidates = [];
 $candidateSkills = [];
 $candidateLocations = [];
 $skills = getSkills();
@@ -266,11 +291,12 @@ if(!empty($_POST['submit'])) {
         $db = new mysqli(servername, username, password, dbname);
         $candidatesData = getCandidates($data, $start, $limit);
         $candidates = $candidatesData['candidates'];
+        $allCandidates = $candidatesData['allCandidates'];
         $candidateSkills = $candidatesData['skills'];
         $candidateLocations = $candidatesData['locations'];
         $candidateQualifications = $candidatesData['qualifications'];
         if($_POST['submit'] == 'Send email to candidates to update') {
-            foreach ($candidates as $candidate) {
+            foreach ($allCandidates as $candidate) {
                 if(strstr($candidate['skills'], 172) != false && !empty($candidate['resume'])) {
                     continue;
                 }
@@ -284,7 +310,7 @@ if(!empty($_POST['submit'])) {
             echo 'Email sent successfully';
         } else if($_POST['submit'] == 'Send custom email') {
             $failedEmails = [];
-            foreach ($candidates as $candidate) {
+            foreach ($allCandidates as $candidate) {
                 if(strstr($candidate['skills'], 172) != false && !empty($candidate['resume'])) {
                     continue;
                 }
