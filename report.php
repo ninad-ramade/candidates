@@ -275,6 +275,9 @@ $vendors = getVendors();
 $protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
 $locations = getLocations();
 if(!empty($_POST['submit'])) {
+    ini_set('max_execution_time', 0);
+    ini_set("memory_limit", "-1");
+    set_time_limit(0);
     if($_POST['submit'] == 'Reset') {
         $_POST = $data = [];
         header('Location: ' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php');
@@ -349,9 +352,6 @@ if(!empty($_POST['submit'])) {
                     echo 'File could not be uploaded. Please try again.';
                 }
                 else {
-                    ini_set('max_execution_time', 0);
-                    ini_set("memory_limit", "-1");
-                    set_time_limit(0);
                     $fileType = \PHPExcel_IOFactory::identify($fileUrl);
                     $reader = \PHPExcel_IOFactory::createReader($fileType)->load($fileUrl);
                     $objWorksheet = $reader->setActiveSheetIndex(0);
