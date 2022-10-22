@@ -19,7 +19,7 @@ if(isset($_POST['submit'])) {
     unset($user['password']);
     $db->close();
     $_SESSION['user'] = $user;
-    header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl);
+    header('Location: http://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php');
     exit;
 } else if(!empty($_SESSION['user'])) {
     unset($_SESSION['user']);

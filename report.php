@@ -8,7 +8,9 @@ require_once 'vendor/autoload.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/Exception.php';
 require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
 session_start();
-function getCandidates($filterData = []) {
+$start = 0;
+$limit = 20;
+function getCandidates($filterData = [], $start, $limit) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM candidates";
     global $where;
@@ -53,6 +55,9 @@ function getCandidates($filterData = []) {
     if(!empty($where)) {
         $sql .= ' WHERE (' . implode(" AND ", array_filter($where)) . ')';
     }
+    $sql .= ' ORDER BY name ASC';
+    $countResult = $db->query($sql);
+    $sql .= ' LIMIT ' . $start . ', ' . $limit;
     $result = $db->query($sql);
     $candidates = [];
     if ($result->num_rows < 1) {
@@ -79,7 +84,7 @@ function getCandidates($filterData = []) {
             $row['education'] = array_filter(explode(",", $row['education']));
             $resultQualifications = array_merge($resultQualifications, $row['education']);
         }
-        $row = array_merge(['sr' => $sr], $row);
+        $row = array_merge(['sr' => $sr * (($start/$limit) + 1)], $row);
         $candidates[] = $row;
         $sr++;
     }
@@ -108,7 +113,7 @@ function getCandidates($filterData = []) {
         }
     }
     $db->close();
-    return ['candidates' => $candidates, 'skills' => $finalSkills, 'locations' => $finalLocations, 'qualifications' => $finalQualifications];
+    return ['candidates' => $candidates, 'totalRecords' => $countResult->num_rows, 'skills' => $finalSkills, 'locations' => $finalLocations, 'qualifications' => $finalQualifications];
 }
 function getSkills($id = null, $groupParent = null) {
     $db = new mysqli(servername, username, password, dbname);
@@ -254,23 +259,35 @@ if(!empty($_POST['submit'])) {
         unset($data['submit']);
         unset($data['customBody']);
         unset($data['vendor']);
+        $start = $data['start'];
+        $limit = $data['limit'];
+        unset($data['start']);
+        unset($data['limit']);
         $db = new mysqli(servername, username, password, dbname);
-        $candidatesData = getCandidates($data);
+        $candidatesData = getCandidates($data, $start, $limit);
         $candidates = $candidatesData['candidates'];
         $candidateSkills = $candidatesData['skills'];
         $candidateLocations = $candidatesData['locations'];
         $candidateQualifications = $candidatesData['qualifications'];
         if($_POST['submit'] == 'Send email to candidates to update') {
             foreach ($candidates as $candidate) {
-                if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody'])) {
-                    $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
-                    $db->query($sql);
+                if(strstr($candidate['skills'], 172) != false && !empty($candidate['resume'])) {
+                    continue;
+                }
+                if(date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s')) {
+                    if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody'])) {
+                        $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
+                        $db->query($sql);
+                    }
                 }
             }
             echo 'Email sent successfully';
         } else if($_POST['submit'] == 'Send custom email') {
             $failedEmails = [];
             foreach ($candidates as $candidate) {
+                if(strstr($candidate['skills'], 172) != false && !empty($candidate['resume'])) {
+                    continue;
+                }
                 $subject = "Profile for " . (!empty($data['skills']) ? implode(", ", array_intersect_key($candidateSkills, array_flip($data['skills']))) : implode(", ", $candidateSkills));
                 if(!empty($data['overallExperience'])) {
                     $subject .= " with " . implode(", ", $data['overallExperience']) . " Years experience";
@@ -410,19 +427,23 @@ function validateImport(e) {
 	}
 	return true;
 }
+function setPagination(start) {
+	document.getElementById('start').value = start;
+	document.getElementById('submit').click();
+}
 </script>
 <?php 
 include 'header.php';
 include 'menu.php'; ?>
 
-<form action="report.php" method="post" enctype="multipart/form-data">
+<form action="report.php" id="candidateForm" method="post" enctype="multipart/form-data">
 	<div class="row">
         <div class="col-lg-2">
             <textarea id="customBody" name="customBody" class="form-control" placeholder="Email body"></textarea>
        	</div>
        	<div class="col-lg-2">
-            <select id="vendor" name="vendor" class="form-control">
-            	<option value="">Select</option>
+            <select id="vendor" name="vendor" class="form-control js-example-basic-single">
+            	<option value="">Select Vendor</option>
             	<?php foreach($vendors as $vendor) { ?>
             		<option value="<?php echo $vendor['id']; ?>"><?php echo $vendor['name']; ?></option>
             	<?php } ?>
@@ -446,8 +467,7 @@ include 'menu.php'; ?>
 <div class="row">
 	<div class="col-lg-2">
     	<label for="skills">Skills/Keywords</label>
-        <select id="skills" name="skills[]" multiple="multiple" class="form-control">
-        <option value="">Select</option>
+        <select id="skills" name="skills[]" multiple="multiple" class="form-control js-example-basic-multiple">
         <?php foreach($skills as $eachskill) { ?>
         <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['groupParent'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
         <?php } ?>
@@ -476,8 +496,7 @@ include 'menu.php'; ?>
 	</div>
 	<div class="col-lg-1">
 		<label for="preferredLocation">Preferred Loc</label>
-        <select id="preferredLocation" name="preferredLocation[]" multiple="multiple" class="form-control">
-        <option value="">Select</option>
+        <select id="preferredLocation" name="preferredLocation[]" multiple="multiple" class="form-control js-example-basic-multiple">
         <?php foreach($locations as $location) { ?>
         <option value="<?php echo $location['id']; ?>" <?php echo !empty($_POST['preferredLocation']) ? (in_array($location['id'], $_POST['preferredLocation']) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
         <?php } ?>
@@ -486,8 +505,7 @@ include 'menu.php'; ?>
   	</div>
 	<div class="col-lg-2">
 		<label for="preferredLocation">Status</label>
-    	<select id="status" name="status[]" multiple="multiple" class="form-control">
-    	<option value="">Select</option>
+    	<select id="status" name="status[]" multiple="multiple" class="form-control js-example-basic-multiple">
     	<option value="Created">Created</option>
     	<option value="Email sent">Email sent</option>
     	<option value="Updated by Candidate">Updated by Candidate</option>
@@ -506,11 +524,10 @@ include 'menu.php'; ?>
 </div>
 <div class="row actionRow">
 	<div class="col-lg-2">
-		<input type="submit" name="submit" onclick="validateSearch(event)" class="btn btn-primary" value="Search" />
+		<input type="submit" id="submit" name="submit" onclick="validateSearch(event)" class="btn btn-primary" value="Search" />
 		<input type="submit" name="submit" class="btn btn-primary" value="Reset" />
 	</div>
 </div>
-</form>
 <div class="row">
 <table>
 <tr>
@@ -522,7 +539,7 @@ include 'menu.php'; ?>
 <tr>
 	<?php foreach($columns as $column){ if($column == 'id') {continue;}?>
 	<td><?php 
-	if($column == 'servingNotice') {
+	if($column == 'servingNotice' || $column == 'it') {
 	    echo !empty($candidate[$column]) ? ($candidate[$column] == 1 ? 'Yes' : 'No') : '';
 	} else if ($column == 'education') {
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateQualifications, array_flip($candidate[$column]))) : '';
@@ -541,4 +558,21 @@ include 'menu.php'; ?>
 <?php } ?>
 </table>
 </div>
+<div class="row pagination-wrapper">
+	<div class="col-lg-2"><?php echo !empty($candidatesData) ? 'Total ' . $candidatesData['totalRecords'] . ' records found.' : ''; ?></div>
+	<div class="col-lg-8 pagination">
+		<ul class="pagination">
+			<?php if($candidatesData['totalRecords'] > $limit) { ?>
+				<li class="previous"><a href="javascript:void(0)" onclick="setPagination(<?php echo $limit - $start; ?>);">Previous</a></li>
+    			<?php for($page = 0; $page < $candidatesData['totalRecords']/$limit; $page++) {?>
+                <li class="<?php echo $start/$limit == $page ? 'active' : ''?>"><a href="javascript:void(0)" onclick="setPagination(<?php echo $page * $limit; ?>);"><?php echo $page + 1; ?></a></li>
+                <?php } ?>
+  				<li class="next"><a href="javascript:void(0)" onclick="setPagination(<?php echo $start + $limit; ?>);">Next</a></li>
+  			<?php } ?>
+        </ul>
+  	</div>
+</div>
+<input name="start" id="start" type="hidden" value="<?php echo $start; ?>" />
+<input name="limit" name="limit" type="hidden" value="<?php echo $limit; ?>" />
+</form>
 <?php include 'footer.php'; ?>

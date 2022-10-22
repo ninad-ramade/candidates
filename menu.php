@@ -13,8 +13,8 @@ if(empty($email) && $mode != 'new') {
       <a class="navbar-brand" href="/">RAPID Jobs</a>
     </div>
     <ul class="nav navbar-nav">
+    	<li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Candidates</a></li>
       	<li><a href="/">Candidate Form</a></li>
-      	<li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Candidates</a></li>
 		<li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php'; ?>">Extract Profiles</a></li>
 		<li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'user.php'; ?>">Create User</a></li>
     </ul>

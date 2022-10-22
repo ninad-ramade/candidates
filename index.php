@@ -57,14 +57,31 @@ function getQualifications($qualification = null) {
     $db->close();
     return $qualifications;
 }
-function getSkills($skill = null) {
+function getSkills($skill = null, $it = null) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM skills";
     if(!empty($skill)) {
         $sql .= " WHERE LOWER(skill) = '" . strtolower($skill) . "'";
     } else {
+        if(!is_null($it)) {
+            $sql .= " WHERE it = " . (int) $it;
+        }
         $sql .= " ORDER BY skill ASC";
     }
+    $result = $db->query($sql);
+    $skills = [];
+    if ($result->num_rows < 1) {
+        return $skills;
+    }
+    while($row = $result->fetch_assoc()) {
+        $skills[] = $row;
+    }
+    $db->close();
+    return $skills;
+}
+function getSkillsByIt($it) {
+    $db = new mysqli(servername, username, password, dbname);
+    $sql = "SELECT * FROM skills WHERE it = " . (int) $it . " ORDER BY skill ASC";
     $result = $db->query($sql);
     $skills = [];
     if ($result->num_rows < 1) {
@@ -249,6 +266,8 @@ if(isset($_POST['submit'])) {
     }
 } else if(!empty($_POST['email'])) {
     echo json_encode(getCandidateByEmail($_POST['email']));exit;
+} else if(!is_null($_POST['it']) && $_POST['it'] != '') {
+    echo json_encode(getSkillsByIt($_POST['it']));exit;
 }
 if(!empty($id)) {
     $candidateDetails = getCandidate($id);
@@ -347,6 +366,24 @@ function displayDrilldown(id, checked, discountRemaining) {
     	}
     }
 }
+function loadSkills(it) {
+	document.getElementById('skills').innerHTML = '<option value="">Select</option>';
+	var xhr = new XMLHttpRequest();
+	xhr.open("POST", 'index.php', true);
+	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhr.responseType = "json";
+	xhr.onreadystatechange = function() {
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+        	this.response.forEach(function(e){
+        		var option = document.createElement('option');
+        		option.setAttribute('value', e.id);
+        		option.innerHTML = e.skill;
+        		document.getElementById('skills').append(option);
+        	});
+        }
+    }
+	xhr.send("it=" + it);
+}
 </script>
 <?php if(empty($email) && $mode != 'new'){ ?>
 <form method="post" action="index.php">
@@ -375,7 +412,7 @@ function displayDrilldown(id, checked, discountRemaining) {
 		<label class="control-label" for="email">Email</label>
 	</div>
 	<div class="col-lg-3">
-		<input required type="text" name="email" id="email" class="form-control" value="<?php echo !empty($candidateDetails) ? $candidateDetails['email'] : $email; ?>" <?php echo !empty($email) ? 'readonly' : 'onblur="getCandidate(this.value)"'; ?>/>
+		<input required type="email" name="email" id="email" class="form-control" value="<?php echo !empty($candidateDetails) ? $candidateDetails['email'] : $email; ?>" <?php echo !empty($email) ? 'readonly' : 'onblur="getCandidate(this.value)"'; ?>/>
 	</div>
 </div>
 <div class="row">
@@ -396,11 +433,30 @@ function displayDrilldown(id, checked, discountRemaining) {
 </div>
 <div class="row">
 	<div class="col-lg-1">
+		<label class="control-label" for="it">IT or Non IT?</label>
+	</div>
+	<div class="col-lg-3">
+		<label><input type="radio" required name="it" id="itYes" value="1" <?php if(empty($id)) { ?>onclick="loadSkills(this.value)"<?php } ?> <?php echo !empty($candidateDetails) ? (1 == $candidateDetails['it'] ? 'checked' : '') : ''; ?> /> IT</label>
+		<label><input type="radio" required name="it" id="itNo" value="0" <?php if(empty($id)) { ?>onclick="loadSkills(this.value)"<?php } ?> <?php echo !empty($candidateDetails) ? (0 == $candidateDetails['it'] ? 'checked' : '') : ''; ?> /> Non IT</label>
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-1">
+		<label class="control-label" for="resume">Upload Resume</label>
+	</div>
+	<div class="col-lg-3">
+        <input type="file" name="resume" id="resume" class="form-control" />
+        <?php if(!empty($candidateDetails) && !empty($candidateDetails['resume'])) { ?>
+        <a href="<?php echo $candidateDetails['resume']; ?>" target="blank" ><?php echo pathinfo($candidateDetails['resume'], PATHINFO_BASENAME); ?></a>
+        <?php } ?>
+   	</div>
+</div>
+<div class="row">
+	<div class="col-lg-1">
 		<label class="control-label" for="education">Education</label>
 	</div>
 	<div class="col-lg-3">
-        <select id="education" name="education[]" class="form-control" multiple="multiple">
-        <option value="">Select</option>
+        <select id="education" name="education[]" class="form-control js-example-basic-multiple" multiple="multiple">
         <?php foreach($education as $edu) { ?>
         <option value="<?php echo $edu['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($edu['id'], explode(",", $candidateDetails['education'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $edu['qualification']; ?></option>
         <?php } ?>
@@ -412,11 +468,12 @@ function displayDrilldown(id, checked, discountRemaining) {
 		<label class="control-label" for="skills">Skills/Keywords</label>
 	</div>
 	<div class="col-lg-3">
-        <select required id="skills" name="skills[]" class="form-control" multiple="multiple">
-        <option value="">Select</option>
-        <?php foreach($skills as $eachskill) { ?>
+        <select required id="skills" name="skills[]" class="form-control js-example-basic-multiple" multiple="multiple">
+        <?php if(!empty($id)) {
+            foreach($skills as $eachskill) { 
+            ?>
         <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['id'], explode(",", $candidateDetails['skills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
-        <?php } ?>
+        <?php }} ?>
         </select>
   	</div>
 </div>
@@ -458,8 +515,7 @@ function displayDrilldown(id, checked, discountRemaining) {
 		<label class="control-label" for="currentLocation">Current Loc</label>
 	</div>
 	<div class="col-lg-3">
-        <select id="currentLocation" class="form-control" name="currentLocation[]" multiple="multiple">
-        <option value="">Select</option>
+        <select id="currentLocation" class="form-control js-example-basic-multiple" name="currentLocation[]" multiple="multiple">
         <?php foreach($locations as $location) { ?>
         <option value="<?php echo $location['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($location['id'], explode(",", $candidateDetails['currentLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
         <?php } ?>
@@ -472,8 +528,7 @@ function displayDrilldown(id, checked, discountRemaining) {
 		<label class="control-label" for="preferredLocation">Preferred Loc</label>
 	</div>
 	<div class="col-lg-3">
-        <select id="preferredLocation" class="form-control" name="preferredLocation[]" multiple="multiple">
-        <option value="">Select</option>
+        <select id="preferredLocation" class="form-control js-example-basic-multiple" name="preferredLocation[]" multiple="multiple">
         <?php foreach($locations as $location) { ?>
         <option value="<?php echo $location['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($location['id'], explode(",", $candidateDetails['preferredLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
         <?php } ?>
@@ -506,7 +561,6 @@ function displayDrilldown(id, checked, discountRemaining) {
 	</div>
 	<div class="col-lg-3">
         <select id="noticePeriod" name="noticePeriod" class="form-control">
-        <option value="">Select</option>
         <option value="15" <?php echo !empty($candidateDetails) ? ('15' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>0-15 Days</option>
         <option value="30" <?php echo !empty($candidateDetails) ? ('30' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>30 Days</option>
         <option value="60" <?php echo !empty($candidateDetails) ? ('60' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>60 Days</option>
@@ -522,18 +576,6 @@ function displayDrilldown(id, checked, discountRemaining) {
 		<label><input type="radio" name="servingNotice" id="servingNoticeYes" value="1" <?php echo !empty($candidateDetails) ? (1 == $candidateDetails['servingNotice'] ? 'checked' : '') : ''; ?> /> Yes</label>
 		<label><input type="radio" name="servingNotice" id="servingNoticeNo" value="2" <?php echo !empty($candidateDetails) ? (2 == $candidateDetails['servingNotice'] ? 'checked' : '') : ''; ?> /> No</label>
 	</div>
-</div>
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="resume">Upload Resume</label>
-	</div>
-	<div class="col-lg-3">
-        <input type="file" name="resume" id="resume" class="form-control" />
-        <?php if(!empty($candidateDetails) && !empty($candidateDetails['resume'])) { ?>
-        <a href="<?php echo $candidateDetails['resume']; ?>" target="blank" ><?php echo pathinfo($candidateDetails['resume'], PATHINFO_BASENAME); ?></a>
-        <?php } ?>
-   	</div>
 </div>
 
 <div class="row">
