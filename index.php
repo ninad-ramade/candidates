@@ -404,7 +404,7 @@ function loadSkills(it) {
 <form method="post" class="candidateForm" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>&m=<?php echo !empty($_GET['m']) ? $_GET['m'] : ''; ?>" enctype="multipart/form-data">
 <div class="row">
     <div class="col-lg-3">
-    	Press Ctrl and select for multiple options.<br/>Mail to <a href="mailto:feedback@rapidtechnologies.co.in">feedback@rapidtechnologies.co.in</a> for any queries.
+    	Press Ctrl and select for multiple options.<br/>Mail to <a href="mailto:support@rapidjobs.co.in">support@rapidjobs.co.in</a> for any queries.
     </div>
 </div>
 <div class="row">
