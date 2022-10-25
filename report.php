@@ -299,8 +299,13 @@ if(!empty($_POST['submit'])) {
         $candidateLocations = $candidatesData['locations'];
         $candidateQualifications = $candidatesData['qualifications'];
         if($_POST['submit'] == 'Send email to candidates to update') {
+            $processCount = 0;
             ini_set('max_execution_time', 0);
             foreach ($allCandidates as $candidate) {
+                if($processCount >= 4000) {
+                    echo 'Email sent successfully';
+                    break;
+                }
                 if(in_array(172, $candidate['skills']) && !empty($candidate['resume'])) {
                     continue;
                 }
@@ -308,10 +313,10 @@ if(!empty($_POST['submit'])) {
                     if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody'])) {
                         $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
                         $db->query($sql);
+                        $processCount++;
                     }
                 }
             }
-            echo 'Email sent successfully';
         } else if($_POST['submit'] == 'Send custom email') {
             ini_set('max_execution_time', 0);
             $failedEmails = [];
