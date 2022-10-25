@@ -42,7 +42,7 @@ function getCandidates($filterData = [], $start, $limit) {
                 else {
                     if(is_array($value)) {
                         foreach($value as $eachval) {
-                            $innerWhere[] = $filter . ' like "%,'. $eachval .',%"';
+                            $innerWhere[] = $filter == 'status' ? $filter . ' IN ("' . implode('","', $value) . '")' : $filter . ' like "%,'. $eachval .',%"';
                         }
                     } else {
                         $innerWhere[] = $filter . ' like "%'. $value .'%"';
@@ -55,7 +55,7 @@ function getCandidates($filterData = [], $start, $limit) {
     if(!empty($where)) {
         $sql .= ' WHERE (' . implode(" AND ", array_filter($where)) . ')';
     }
-    $sql .= ' ORDER BY name ASC';
+    $sql .= ' ORDER BY id DESC';
     $countResult = $db->query($sql);
     $sql .= ' LIMIT ' . $start . ', ' . $limit;
     $result = $db->query($sql);
@@ -441,7 +441,7 @@ function validateEmail(e) {
 	return true;
 }
 function validateSearch(e) {
-	if(document.getElementById("skills").value == '' && document.getElementById("email").value == '') {
+	if(document.getElementById("skills").value == '' && document.getElementById("status").value == '' && document.getElementById("email").value == '') {
 		alert('Please select a skill or email.');
 		e.preventDefault();
 		return false;
