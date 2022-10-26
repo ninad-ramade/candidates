@@ -303,7 +303,7 @@ if(!empty($_POST['submit'])) {
             $processCount = 0;
             ini_set('max_execution_time', 0);
             foreach ($allCandidates as $candidate) {
-                if($processCount >= 4000) {
+                if($processCount >= 4000 || $processCount == count($allCandidates)) {
                     echo 'Email sent successfully';
                     break;
                 }
