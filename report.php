@@ -303,10 +303,6 @@ if(!empty($_POST['submit'])) {
             $processCount = 0;
             ini_set('max_execution_time', 0);
             foreach ($allCandidates as $candidate) {
-                if($processCount >= 4000 || $processCount == count($allCandidates) - 1) {
-                    echo 'Email sent successfully';
-                    break;
-                }
                 if(in_array(172, $candidate['skills']) && !empty($candidate['resume'])) {
                     continue;
                 }
@@ -316,6 +312,10 @@ if(!empty($_POST['submit'])) {
                         $db->query($sql);
                         $processCount++;
                     }
+                }
+                if($processCount >= 4000 || $processCount == count($allCandidates)) {
+                    echo 'Email sent successfully';
+                    break;
                 }
             }
         } else if($_POST['submit'] == 'Send custom email') {
