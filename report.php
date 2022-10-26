@@ -246,7 +246,7 @@ function sendEmail($email, $name, $id, $body) {
     $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/>Please click below link to fill up your resume details for better opportunities from RAPID Jobs.<br/><br/><a href="' . $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . '?ce=' . base64_encode($email) . '&id=' . base64_encode($id) . '" target="blank">Click Here</a><br/><br/>Thanks<br/><br/>RT Jobs';
     $mail->Body = $content;
     if(!$mail->Send()) {
-        return false;
+        return $mail->ErrorInfo;
     }
     return true;
 }
@@ -310,7 +310,7 @@ if(!empty($_POST['submit'])) {
                     continue;
                 }
                 if(empty($candidate['emailSentOn']) || date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s')) {
-                    if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody'])) {
+                    if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody']) !== true) {
                         $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
                         $db->query($sql);
                         $processCount++;
