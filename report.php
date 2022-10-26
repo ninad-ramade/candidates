@@ -306,9 +306,8 @@ if(!empty($_POST['submit'])) {
                 if(in_array(172, $candidate['skills']) && !empty($candidate['resume'])) {
                     continue;
                 }
-                var_dump(empty($candidate['emailSentOn']) || date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s') || !empty($_POST['forceEmail']));exit;
                 if(empty($candidate['emailSentOn']) || date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s') || !empty($_POST['forceEmail'])) {
-                    if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody']) !== true) {
+                    if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody']) === true) {
                         $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
                         $db->query($sql);
                         $processCount++;
