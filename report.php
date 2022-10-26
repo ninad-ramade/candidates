@@ -1,5 +1,5 @@
 <?php
-//ini_set('display_errors', 1);
+ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -287,6 +287,7 @@ if(!empty($_POST['submit'])) {
         unset($data['submit']);
         unset($data['customBody']);
         unset($data['vendor']);
+        unset($data['forceEmail']);
         $start = $data['start'];
         $limit = $data['limit'];
         unset($data['start']);
@@ -298,7 +299,7 @@ if(!empty($_POST['submit'])) {
         $candidateSkills = $candidatesData['skills'];
         $candidateLocations = $candidatesData['locations'];
         $candidateQualifications = $candidatesData['qualifications'];
-        if($_POST['submit'] == 'Send email to candidates to update') {
+        if($_POST['submit'] == 'Send email to update') {
             $processCount = 0;
             ini_set('max_execution_time', 0);
             foreach ($allCandidates as $candidate) {
@@ -309,7 +310,7 @@ if(!empty($_POST['submit'])) {
                 if(in_array(172, $candidate['skills']) && !empty($candidate['resume'])) {
                     continue;
                 }
-                if(empty($candidate['emailSentOn']) || date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s')) {
+                if(empty($candidate['emailSentOn']) || date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s') || empty($_POST['forceEmail'])) {
                     if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody']) !== true) {
                         $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
                         $db->query($sql);
@@ -483,9 +484,10 @@ include 'menu.php'; ?>
             	<?php } ?>
             </select>
        	</div>
-       	<div class="col-lg-3">
+       	<div class="col-lg-4">
+       		<label><input type="checkbox" name="forceEmail" id="forceEmail" /> Force Email</label>
             <input type="submit" name="submit" class="btn btn-primary" onclick="validateCustomEmail(event)" value="Send custom email" />
-            <input type="submit" name="submit" class="btn btn-primary" onclick="validateEmail(event)" value="Send email to candidates to update" />
+            <input type="submit" name="submit" class="btn btn-primary" onclick="validateEmail(event)" value="Send email to update" />
         </div>
         <div class="col-lg-2">
         	<input type="file" name="import" accept=".csv,.xlsx,.xls" id="import" class="form-control" />Only csv, xlsx and xls files are allowed.
