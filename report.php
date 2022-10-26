@@ -313,6 +313,7 @@ if(!empty($_POST['submit'])) {
                         $processCount++;
                     }
                 }
+                var_dump($processCount);exit;
                 if($processCount >= 4000 || $processCount == count($allCandidates)) {
                     echo 'Email sent successfully';
                     break;
