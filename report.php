@@ -51,6 +51,9 @@ function getCandidates($filterData = [], $start, $limit, $action) {
                 array_push($where, '('. implode(" OR ", $innerWhere) . ')');
             }
         }
+        if($action == 'Send candidate update') {
+            $where[] = '(emailSentOn IS NULL OR emailSentOn < now() - interval 1 week)';
+        }
     }
     if(!empty($where)) {
         $sql .= ' WHERE (' . implode(" AND ", array_filter($where)) . ')';
