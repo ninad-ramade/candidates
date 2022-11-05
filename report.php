@@ -1,5 +1,5 @@
 <?php
-//ini_set('display_errors', 1);
+ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -322,6 +322,7 @@ if(!empty($_POST['submit'])) {
                             $db->query($sql);
                             $processCount++;
                         } catch (mysqli_sql_exception $e) {
+                            echo $sql . ' failed: ' . $e->getMessage();exit;
                         }
                     }
                 }
