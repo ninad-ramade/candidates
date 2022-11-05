@@ -307,9 +307,6 @@ if(!empty($_POST['submit'])) {
         $limit = $data['limit'];
         unset($data['start']);
         unset($data['limit']);
-        if($_POST['submit'] == 'Send candidate update') {
-            var_dump($candidatesData);exit;
-        }
         $candidatesData = getCandidates($data, $start, $limit);
         $candidates = $candidatesData['candidates'];
         $allCandidates = $candidatesData['allCandidates'];
