@@ -10,7 +10,7 @@ require_once __DIR__ . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
 session_start();
 $start = 0;
 $limit = 20;
-function getCandidates($filterData = [], $start, $limit) {
+function getCandidates($filterData = [], $start, $limit, $action) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM candidates";
     global $where;
@@ -56,7 +56,9 @@ function getCandidates($filterData = [], $start, $limit) {
         $sql .= ' WHERE (' . implode(" AND ", array_filter($where)) . ')';
     }
     $sql .= ' ORDER BY id DESC';
-    $countResult = $db->query($sql);
+    $allSql = $sql;
+    $allSql .= ' LIMIT ' . $start . ', 5000';
+    $countResult = $db->query($allSql);
     $sql .= ' LIMIT ' . $start . ', ' . $limit;
     $result = $db->query($sql);
     $db->close();
@@ -307,7 +309,7 @@ if(!empty($_POST['submit'])) {
         $limit = $data['limit'];
         unset($data['start']);
         unset($data['limit']);
-        $candidatesData = getCandidates($data, $start, $limit);
+        $candidatesData = getCandidates($data, $start, $limit, $_POST['submit']);
         $candidates = $candidatesData['candidates'];
         $allCandidates = $candidatesData['allCandidates'];
         $candidateSkills = $candidatesData['skills'];
@@ -322,7 +324,6 @@ if(!empty($_POST['submit'])) {
                     continue;
                 }
                 if(empty($candidate['emailSentOn']) || date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s') || !empty($_POST['forceEmail'])) {
-                    var_dump($candidate);exit;
                     if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody']) === true) {
                         $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
                         try {
