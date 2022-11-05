@@ -121,23 +121,34 @@ function getCandidates($filterData = [], $start, $limit) {
                 $finalSkills[$row['id']] = $row['skill'];
             }
         } catch (mysqli_sql_exception $e) {
-            $errors[] = $sql . ' failed: ' . $e->getMessage();
+            echo $sql . ' failed: ' . $e->getMessage();
+            exit;
         }
     }
     if(!empty($resultLocations)) {
         $sql = "SELECT * FROM locations WHERE id IN (" . implode(",", array_unique($resultLocations)) . ")";
-        $result = $db->query($sql);
-        $finalLocations = [];
-        while($row = $result->fetch_assoc()) {
-            $finalLocations[$row['id']] = $row['location'];
+        try {
+            $result = $db->query($sql);
+            $finalLocations = [];
+            while($row = $result->fetch_assoc()) {
+                $finalLocations[$row['id']] = $row['location'];
+            }
+        } catch (mysqli_sql_exception $e) {
+            echo $sql . ' failed: ' . $e->getMessage();
+            exit;
         }
     }
     if(!empty($resultQualifications)) {
         $sql = "SELECT * FROM qualifications WHERE id IN (" . implode(",", array_unique($resultQualifications)) . ")";
-        $result = $db->query($sql);
-        $finalQualifications = [];
-        while($row = $result->fetch_assoc()) {
-            $finalQualifications[$row['id']] = $row['qualification'];
+        try {
+            $result = $db->query($sql);
+            $finalQualifications = [];
+            while($row = $result->fetch_assoc()) {
+                $finalQualifications[$row['id']] = $row['qualification'];
+            }
+        } catch (mysqli_sql_exception $e) {
+            echo $sql . ' failed: ' . $e->getMessage();
+            exit;
         }
     }
     $db->close();
