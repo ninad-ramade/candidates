@@ -120,7 +120,7 @@ function getCandidates($filterData = [], $start, $limit) {
             while($row = $result->fetch_assoc()) {
                 $finalSkills[$row['id']] = $row['skill'];
             }
-        } catch (Exception $e) {
+        } catch (mysqli_sql_exception $e) {
             $errors[] = $sql . ' failed: ' . $e->getMessage();
         }
     }
