@@ -469,11 +469,11 @@ function loadSkills(it) {
 	</div>
 	<div class="col-lg-3">
         <select required id="skills" name="skills[]" class="form-control js-example-basic-multiple" multiple="multiple">
-        <?php if(!empty($id)) {
+        <?php 
             foreach($skills as $eachskill) { 
             ?>
         <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['id'], explode(",", $candidateDetails['skills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
-        <?php }} ?>
+        <?php } ?>
         </select>
   	</div>
 </div>
