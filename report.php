@@ -322,6 +322,7 @@ if(!empty($_POST['submit'])) {
                     continue;
                 }
                 if(empty($candidate['emailSentOn']) || date('Y-m-d H:i:s', strtotime($candidate['emailSentOn'] . ' + 7 Days')) < date('Y-m-d H:i:s') || !empty($_POST['forceEmail'])) {
+                    var_dump($candidate);exit;
                     if(sendEmail($candidate['email'], $candidate['name'], $candidate['id'], $_POST['customBody']) === true) {
                         $sql = "UPDATE candidates SET status = 'Email sent', emailSentOn = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $candidate['id'];
                         try {
