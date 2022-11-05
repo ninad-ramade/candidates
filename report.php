@@ -593,7 +593,7 @@ include 'menu.php'; ?>
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateQualifications, array_flip($candidate[$column]))) : '';
 	}
 	else if ($column == 'skills') {
-	    echo implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column])));
+	    echo !empty($candidateSkills) ? implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column]))) : (in_array(172, $data['skills']) && count($data['skills']) == 1 ? 'NONE' : '');
 	} else if ($column == 'currentLocation' || $column == 'preferredLocation') {
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateLocations, array_flip($candidate[$column]))) : '';
 	} else {
