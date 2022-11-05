@@ -121,8 +121,6 @@ function getCandidates($filterData = [], $start, $limit) {
                 $finalSkills[$row['id']] = $row['skill'];
             }
         } catch (mysqli_sql_exception $e) {
-            echo $sql . ' failed: ' . $e->getMessage();
-            exit;
         }
     }
     if(!empty($resultLocations)) {
@@ -134,8 +132,6 @@ function getCandidates($filterData = [], $start, $limit) {
                 $finalLocations[$row['id']] = $row['location'];
             }
         } catch (mysqli_sql_exception $e) {
-            echo $sql . ' failed: ' . $e->getMessage();
-            exit;
         }
     }
     if(!empty($resultQualifications)) {
@@ -147,8 +143,6 @@ function getCandidates($filterData = [], $start, $limit) {
                 $finalQualifications[$row['id']] = $row['qualification'];
             }
         } catch (mysqli_sql_exception $e) {
-            echo $sql . ' failed: ' . $e->getMessage();
-            exit;
         }
     }
     $db->close();
