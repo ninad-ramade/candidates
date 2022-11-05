@@ -307,6 +307,9 @@ if(!empty($_POST['submit'])) {
         $limit = $data['limit'];
         unset($data['start']);
         unset($data['limit']);
+        if($_POST['submit'] == 'Send candidate update') {
+            var_dump($candidatesData);exit;
+        }
         $candidatesData = getCandidates($data, $start, $limit);
         $candidates = $candidatesData['candidates'];
         $allCandidates = $candidatesData['allCandidates'];
@@ -314,7 +317,7 @@ if(!empty($_POST['submit'])) {
         $candidateLocations = $candidatesData['locations'];
         $candidateQualifications = $candidatesData['qualifications'];
         $db = new mysqli(servername, username, password, dbname);
-        if($_POST['submit'] == 'Send email to update') {
+        if($_POST['submit'] == 'Send candidate update') {
             $processCount = 0;
             ini_set('max_execution_time', 0);
             foreach ($allCandidates as $candidate) {
