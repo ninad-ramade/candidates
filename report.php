@@ -59,6 +59,7 @@ function getCandidates($filterData = [], $start, $limit) {
     $countResult = $db->query($sql);
     $sql .= ' LIMIT ' . $start . ', ' . $limit;
     $result = $db->query($sql);
+    $db->close();
     $candidates = [];
     $allCandidates = [];
     if ($result->num_rows < 1) {
@@ -113,6 +114,7 @@ function getCandidates($filterData = [], $start, $limit) {
         }
     }
     if(!empty($resultSkills)) {
+        $db = new mysqli(servername, username, password, dbname);
         $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
         try {
             $result = $db->query($sql);
@@ -122,8 +124,10 @@ function getCandidates($filterData = [], $start, $limit) {
             }
         } catch (mysqli_sql_exception $e) {
         }
+        $db->close();
     }
     if(!empty($resultLocations)) {
+        $db = new mysqli(servername, username, password, dbname);
         $sql = "SELECT * FROM locations WHERE id IN (" . implode(",", array_unique($resultLocations)) . ")";
         try {
             $result = $db->query($sql);
@@ -133,8 +137,10 @@ function getCandidates($filterData = [], $start, $limit) {
             }
         } catch (mysqli_sql_exception $e) {
         }
+        $db->close();
     }
     if(!empty($resultQualifications)) {
+        $db = new mysqli(servername, username, password, dbname);
         $sql = "SELECT * FROM qualifications WHERE id IN (" . implode(",", array_unique($resultQualifications)) . ")";
         try {
             $result = $db->query($sql);
@@ -144,8 +150,8 @@ function getCandidates($filterData = [], $start, $limit) {
             }
         } catch (mysqli_sql_exception $e) {
         }
+        $db->close();
     }
-    $db->close();
     return ['candidates' => $candidates, 'totalRecords' => $countResult->num_rows, 'allCandidates' => $allCandidates, 'skills' => $finalSkills, 'locations' => $finalLocations, 'qualifications' => $finalQualifications];
 }
 function getSkills($id = null, $groupParent = null) {
@@ -301,13 +307,13 @@ if(!empty($_POST['submit'])) {
         $limit = $data['limit'];
         unset($data['start']);
         unset($data['limit']);
-        $db = new mysqli(servername, username, password, dbname);
         $candidatesData = getCandidates($data, $start, $limit);
         $candidates = $candidatesData['candidates'];
         $allCandidates = $candidatesData['allCandidates'];
         $candidateSkills = $candidatesData['skills'];
         $candidateLocations = $candidatesData['locations'];
         $candidateQualifications = $candidatesData['qualifications'];
+        $db = new mysqli(servername, username, password, dbname);
         if($_POST['submit'] == 'Send email to update') {
             $processCount = 0;
             ini_set('max_execution_time', 0);
