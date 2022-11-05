@@ -114,10 +114,14 @@ function getCandidates($filterData = [], $start, $limit) {
     }
     if(!empty($resultSkills)) {
         $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
-        $result = $db->query($sql);
-        $finalSkills = [];
-        while($row = $result->fetch_assoc()) {
-            $finalSkills[$row['id']] = $row['skill'];
+        try {
+            $result = $db->query($sql)
+            $finalSkills = [];
+            while($row = $result->fetch_assoc()) {
+                $finalSkills[$row['id']] = $row['skill'];
+            }
+        } catch (Exception $e) {
+            $errors[] = $sql . ' failed: ' . $e->getMessage();
         }
     }
     if(!empty($resultLocations)) {
