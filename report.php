@@ -496,7 +496,7 @@ include 'menu.php'; ?>
        	<div class="col-lg-4">
        		<label><input type="checkbox" name="forceEmail" id="forceEmail" /> Force Email</label>
             <input type="submit" name="submit" class="btn btn-primary" onclick="validateCustomEmail(event)" value="Send custom email" />
-            <input type="submit" name="submit" class="btn btn-primary" onclick="validateEmail(event)" value="Send email to update" />
+            <input type="submit" name="submit" class="btn btn-primary" onclick="validateEmail(event)" value="Send candidate update" />
         </div>
         <div class="col-lg-2">
         	<input type="file" name="import" accept=".csv,.xlsx,.xls" id="import" class="form-control" />Only csv, xlsx and xls files are allowed.
