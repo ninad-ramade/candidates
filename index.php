@@ -608,4 +608,7 @@ function loadSkills(it) {
 	<div class="col-lg-1"><input type="submit" name="submit" value="Submit" class="btn btn-primary"/></div>
 </div>
 </form>
+<script>
+document.getElementById('itYes').click();
+</script>
 <?php include 'footer.php'; ?>
