@@ -394,220 +394,239 @@ function loadSkills(it) {
 	<div class="col-lg-3">
 		<input type="text" class="form-control" name="newSkill" id="newSkill" />
 	</div>
-	<div class="col-lg-2">
+	<div class="col-lg-3">
 		<input type="submit" name="submit" value="Submit" class="btn btn-primary"/>
 	</div>
 </div>
 </form>
 <?php } ?>
 <h3>Candidate Info</h3>
-<form method="post" class="candidateForm" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>&m=<?php echo !empty($_GET['m']) ? $_GET['m'] : ''; ?>" enctype="multipart/form-data">
 <div class="row">
-    <div class="col-lg-3">
-    	Press Ctrl and select for multiple options.<br/>Mail to <a href="mailto:support@rapidjobs.co.in">support@rapidjobs.co.in</a> for any queries.
-    </div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="email">Email</label>
-	</div>
-	<div class="col-lg-3">
-		<input required type="email" name="email" id="email" class="form-control" value="<?php echo !empty($candidateDetails) ? $candidateDetails['email'] : $email; ?>" <?php echo !empty($email) ? 'readonly' : 'onblur="getCandidate(this.value)"'; ?>/>
-	</div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="name">Name</label>
-	</div>
-	<div class="col-lg-3">
-		<input type="text" name="name" class="form-control" id="name" value="<?php echo !empty($candidateDetails) ? $candidateDetails['name'] : ''; ?>" />
-	</div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="mobile">Mobile No.</label>
-	</div>
-	<div class="col-lg-3">
-		<input required type="text" name="mobile" class="form-control" id="mobile" value="<?php echo !empty($candidateDetails) ? $candidateDetails['mobile'] : ''; ?>" />
-	</div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="it">IT or Non IT?</label>
-	</div>
-	<div class="col-lg-3">
-		<label><input type="radio" required name="it" id="itYes" value="1" <?php if(empty($id)) { ?>onclick="loadSkills(this.value)"<?php } ?> <?php echo !empty($candidateDetails) ? (1 == $candidateDetails['it'] ? 'checked' : '') : ''; ?> /> IT</label>
-		<label><input type="radio" required name="it" id="itNo" value="0" <?php if(empty($id)) { ?>onclick="loadSkills(this.value)"<?php } ?> <?php echo !empty($candidateDetails) ? (0 == $candidateDetails['it'] ? 'checked' : '') : ''; ?> /> Non IT</label>
-	</div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="resume">Upload Resume</label>
-	</div>
-	<div class="col-lg-3">
-        <input type="file" name="resume" id="resume" class="form-control" />
-        <?php if(!empty($candidateDetails) && !empty($candidateDetails['resume'])) { ?>
-        <a href="<?php echo $candidateDetails['resume']; ?>" target="blank" ><?php echo pathinfo($candidateDetails['resume'], PATHINFO_BASENAME); ?></a>
-        <?php } ?>
-   	</div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="education">Education</label>
-	</div>
-	<div class="col-lg-3">
-        <select id="education" name="education[]" class="form-control js-example-basic-multiple" multiple="multiple">
-        <?php foreach($education as $edu) { ?>
-        <option value="<?php echo $edu['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($edu['id'], explode(",", $candidateDetails['education'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $edu['qualification']; ?></option>
-        <?php } ?>
-        </select>
-    </div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="skills">Skills/Keywords</label>
-	</div>
-	<div class="col-lg-3">
-        <select required id="skills" name="skills[]" class="form-control js-example-basic-multiple" multiple="multiple">
-        <?php if(!empty($id)) {
-            foreach($skills as $eachskill) { 
-            ?>
-        <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['id'], explode(",", $candidateDetails['skills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
-        <?php }} ?>
-        </select>
+	<div class="col-lg-6">
+        <form method="post" class="candidateForm" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>&m=<?php echo !empty($_GET['m']) ? $_GET['m'] : ''; ?>" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-lg-6">
+            	Press Ctrl and select for multiple options.<br/>Mail to <a href="mailto:support@rapidjobs.co.in">support@rapidjobs.co.in</a> for any queries.
+            </div>
+        </div>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="email">Email</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<input required type="email" name="email" id="email" class="form-control" value="<?php echo !empty($candidateDetails) ? $candidateDetails['email'] : $email; ?>" <?php echo !empty($email) ? 'readonly' : 'onblur="getCandidate(this.value)"'; ?>/>
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="name">Name</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<input type="text" name="name" class="form-control" id="name" value="<?php echo !empty($candidateDetails) ? $candidateDetails['name'] : ''; ?>" />
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="mobile">Mobile No.</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<input required type="text" name="mobile" class="form-control" id="mobile" value="<?php echo !empty($candidateDetails) ? $candidateDetails['mobile'] : ''; ?>" />
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="it">IT or Non IT?</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<label><input type="radio" required name="it" id="itYes" value="1" <?php if(empty($id)) { ?>onclick="loadSkills(this.value)"<?php } ?> <?php echo !empty($candidateDetails) ? (1 == $candidateDetails['it'] ? 'checked' : '') : ''; ?> /> IT</label>
+        		<label><input type="radio" required name="it" id="itNo" value="0" <?php if(empty($id)) { ?>onclick="loadSkills(this.value)"<?php } ?> <?php echo !empty($candidateDetails) ? (0 == $candidateDetails['it'] ? 'checked' : '') : ''; ?> /> Non IT</label>
+        	</div>
+        </div>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="resume">Upload Resume</label>
+        	</div>
+        	<div class="col-lg-6">
+                <input type="file" name="resume" id="resume" class="form-control" />
+                <?php if(!empty($candidateDetails) && !empty($candidateDetails['resume'])) { ?>
+                <a href="<?php echo $candidateDetails['resume']; ?>" target="blank" ><?php echo pathinfo($candidateDetails['resume'], PATHINFO_BASENAME); ?></a>
+                <?php } ?>
+           	</div>
+        </div>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="education">Education</label>
+        	</div>
+        	<div class="col-lg-6">
+                <select id="education" name="education[]" class="form-control js-example-basic-multiple" multiple="multiple">
+                <?php foreach($education as $edu) { ?>
+                <option value="<?php echo $edu['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($edu['id'], explode(",", $candidateDetails['education'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $edu['qualification']; ?></option>
+                <?php } ?>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="skills">Skills/Keywords</label>
+        	</div>
+        	<div class="col-lg-6">
+                <select required id="skills" name="skills[]" class="form-control js-example-basic-multiple" multiple="multiple">
+                <?php if(!empty($id)) {
+                    foreach($skills as $eachskill) { 
+                    ?>
+                <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['id'], explode(",", $candidateDetails['skills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
+                <?php }} ?>
+                </select>
+          	</div>
+        </div>
+        <?php /* ?>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="subskills">Sub Skills</label>
+        	</div>
+        	<div class="col-lg-6">
+                <select id="subskills" name="subskills[]" class="form-control" multiple="multiple">
+                <option value="">Select</option>
+                <?php foreach($skills as $eachskill) { ?>
+                <option value="<?php echo $eachskill['skill']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['skill'], explode(", ", $candidateDetails['subskills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
+                <?php } ?>
+                </select>
+          	</div>
+        </div>
+        <?php */ ?>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="overallExperience">Overall Experience</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<input name="overallExperience" id="overallExperience" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($candidateDetails['overallExperience']) ? $candidateDetails['overallExperience'] : ''; ?>" />
+         	</div>
+        </div>
+        
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="relevantExperience">Relevant Experience</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<input name="relevantExperience" id="relevantExperience" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($candidateDetails['relevantExperience']) ? $candidateDetails['relevantExperience'] : ''; ?>" />
+          	</div>
+        </div>
+        
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="currentLocation">Current Location</label>
+        	</div>
+        	<div class="col-lg-6">
+                <select id="currentLocation" class="form-control js-example-basic-multiple" name="currentLocation[]" multiple="multiple">
+                <?php foreach($locations as $location) { ?>
+                <option value="<?php echo $location['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($location['id'], explode(",", $candidateDetails['currentLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
+                <?php } ?>
+                </select>
+          	</div>
+        </div>
+        
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="preferredLocation">Preferred Location</label>
+        	</div>
+        	<div class="col-lg-6">
+                <select id="preferredLocation" class="form-control js-example-basic-multiple" name="preferredLocation[]" multiple="multiple">
+                <?php foreach($locations as $location) { ?>
+                <option value="<?php echo $location['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($location['id'], explode(",", $candidateDetails['preferredLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
+                <?php } ?>
+                <option value="">Any</option>
+                </select>
+          	</div>
+        </div>
+        
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="currentCtc">Current CTC (Lacs)</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<input type="number" name="currentCtc" class="form-control" id="currentCtc" value="<?php echo !empty($candidateDetails) ? $candidateDetails['currentCtc'] : ''; ?>" />
+        	</div>
+        </div>
+        
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="expectedCtc">Exp CTC (Lacs)</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<input type="number" name="expectedCtc" class="form-control" id="expectedCtc" value="<?php echo !empty($candidateDetails) ? $candidateDetails['expectedCtc'] : ''; ?>" />
+        	</div>
+        </div>
+        
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="noticePeriod">Notice Period</label>
+        	</div>
+        	<div class="col-lg-6">
+                <select id="noticePeriod" name="noticePeriod" class="form-control">
+                <option value="15" <?php echo !empty($candidateDetails) ? ('15' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>0-15 Days</option>
+                <option value="30" <?php echo !empty($candidateDetails) ? ('30' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>30 Days</option>
+                <option value="60" <?php echo !empty($candidateDetails) ? ('60' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>60 Days</option>
+                <option value=">60" <?php echo !empty($candidateDetails) ? ('>60' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>>60 Days</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="servingNotice">Serving Notice Period?</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<label><input type="radio" name="servingNotice" id="servingNoticeYes" value="1" <?php echo !empty($candidateDetails) ? (1 == $candidateDetails['servingNotice'] ? 'checked' : '') : ''; ?> /> Yes</label>
+        		<label><input type="radio" name="servingNotice" id="servingNoticeNo" value="2" <?php echo !empty($candidateDetails) ? (2 == $candidateDetails['servingNotice'] ? 'checked' : '') : ''; ?> /> No</label>
+        	</div>
+        </div>
+        
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="resume">Services (Only 2 free services)</label>
+        	</div>
+        	<div class="col-lg-6 checkboxScroll">
+        	<ul>
+        	<?php $discounted = 0; foreach($services as $key => $service) { 
+        	    if(!empty($candidateDetails) && ($service['tcount'] - $service['scount'] > 0) && in_array($service['serviceId'], $candidateDetails['services'])) {
+        	        $discounted++;
+        	    }
+        	?>
+        	<li><label class="control-label"><input type="checkbox" name="services[]" class="<?php echo ($service['tcount'] - $service['scount']) > 0 ? 'discounted' : ''; ?>" onchange="displayDrilldown(this.id, this.checked, '<?php echo $service['tcount'] - $service['scount']; ?>')" id="service_<?php echo $service['serviceId']; ?>" value="<?php echo $service['serviceId']; ?>" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'checked="checked"' : ''; ?> <?php echo !empty($candidateDetails) && $discounted >= 2 && ($service['tcount'] - $service['scount']) > 0 && !in_array($service['serviceId'], $candidateDetails['services']) ? 'disabled="disabled"' : ''; ?> /> <?php echo $service['serviceName']; ?></label>
+        	<?php if($service['drilldown'] == 'Y') { ?>
+        		<ul class="vservice-ul" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'style="display:block;"' : ''; ?>>
+        		<?php foreach($service['vservices'] as $key => $vservice) {?>
+        			<li><label class="control-label"><input type="checkbox" name="vservices[<?php echo $service['serviceId'];?>][]" id="vservice_<?php echo $vservice['vserviceId']; ?>" value="<?php echo $vservice['vserviceId']?>" <?php echo !empty($candidateDetails) && in_array($vservice['vserviceId'], $candidateDetails['vservices']) ? 'checked="checked"' : ''; ?> /> <?php echo $vservice['vendorServiceName']; ?></label></li>
+        		<?php } ?>
+        		</ul>
+        	<?php } ?>
+        	</li>
+        	<?php } ?>
+        	</ul>
+           	</div>
+        </div>
+        <input type="hidden" id="id" name="candidateId" value="<?php echo !empty($candidateDetails) ? $candidateDetails['id'] : ''; ?>" />
+        
+        <div class="row">
+        	<div class="col-lg-3"><input type="submit" name="submit" value="Submit" class="btn btn-primary"/></div>
+        </div>
+        </form>
   	</div>
-</div>
-<?php /* ?>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="subskills">Sub Skills</label>
-	</div>
-	<div class="col-lg-3">
-        <select id="subskills" name="subskills[]" class="form-control" multiple="multiple">
-        <option value="">Select</option>
-        <?php foreach($skills as $eachskill) { ?>
-        <option value="<?php echo $eachskill['skill']; ?>" <?php echo !empty($candidateDetails) ? (in_array($eachskill['skill'], explode(", ", $candidateDetails['subskills'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
-        <?php } ?>
-        </select>
-  	</div>
-</div>
-<?php */ ?>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="overallExperience">Overall Exp</label>
-	</div>
-	<div class="col-lg-3">
-		<input name="overallExperience" id="overallExperience" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($candidateDetails['overallExperience']) ? $candidateDetails['overallExperience'] : ''; ?>" />
- 	</div>
-</div>
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="relevantExperience">Relevant Exp</label>
-	</div>
-	<div class="col-lg-3">
-		<input name="relevantExperience" id="relevantExperience" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($candidateDetails['relevantExperience']) ? $candidateDetails['relevantExperience'] : ''; ?>" />
-  	</div>
-</div>
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="currentLocation">Current Loc</label>
-	</div>
-	<div class="col-lg-3">
-        <select id="currentLocation" class="form-control js-example-basic-multiple" name="currentLocation[]" multiple="multiple">
-        <?php foreach($locations as $location) { ?>
-        <option value="<?php echo $location['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($location['id'], explode(",", $candidateDetails['currentLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
-        <?php } ?>
-        </select>
-  	</div>
-</div>
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="preferredLocation">Preferred Loc</label>
-	</div>
-	<div class="col-lg-3">
-        <select id="preferredLocation" class="form-control js-example-basic-multiple" name="preferredLocation[]" multiple="multiple">
-        <?php foreach($locations as $location) { ?>
-        <option value="<?php echo $location['id']; ?>" <?php echo !empty($candidateDetails) ? (in_array($location['id'], explode(",", $candidateDetails['preferredLocation'])) ? 'selected="selected"' : '') : ''; ?>><?php echo $location['location']; ?></option>
-        <?php } ?>
-        <option value="">Any</option>
-        </select>
-  	</div>
-</div>
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="currentCtc">Current CTC (Lacs)</label>
-	</div>
-	<div class="col-lg-3">
-		<input type="number" name="currentCtc" class="form-control" id="currentCtc" value="<?php echo !empty($candidateDetails) ? $candidateDetails['currentCtc'] : ''; ?>" />
+	<div class="col-lg-6 highlight_wrapper">
+		<div class="row">
+			<div class="col-lg-10">
+				<span class="highlight">Get hired in top companies</span>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-5">
+				<div class="stats">9K+</div> Open job positions
+			</div>
+			<div class="col-lg-5">
+				<div class="stats">12K+</div> Companies Jobs
+			</div>
+		</div>
 	</div>
 </div>
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="expectedCtc">Exp CTC (Lacs)</label>
-	</div>
-	<div class="col-lg-3">
-		<input type="number" name="expectedCtc" class="form-control" id="expectedCtc" value="<?php echo !empty($candidateDetails) ? $candidateDetails['expectedCtc'] : ''; ?>" />
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="noticePeriod">Notice Period</label>
-	</div>
-	<div class="col-lg-3">
-        <select id="noticePeriod" name="noticePeriod" class="form-control">
-        <option value="15" <?php echo !empty($candidateDetails) ? ('15' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>0-15 Days</option>
-        <option value="30" <?php echo !empty($candidateDetails) ? ('30' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>30 Days</option>
-        <option value="60" <?php echo !empty($candidateDetails) ? ('60' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>60 Days</option>
-        <option value=">60" <?php echo !empty($candidateDetails) ? ('>60' == $candidateDetails['noticePeriod'] ? 'selected="selected"' : '') : ''; ?>>>60 Days</option>
-        </select>
-    </div>
-</div>
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="servingNotice">Serving Notice Period?</label>
-	</div>
-	<div class="col-lg-3">
-		<label><input type="radio" name="servingNotice" id="servingNoticeYes" value="1" <?php echo !empty($candidateDetails) ? (1 == $candidateDetails['servingNotice'] ? 'checked' : '') : ''; ?> /> Yes</label>
-		<label><input type="radio" name="servingNotice" id="servingNoticeNo" value="2" <?php echo !empty($candidateDetails) ? (2 == $candidateDetails['servingNotice'] ? 'checked' : '') : ''; ?> /> No</label>
-	</div>
-</div>
-
-<div class="row">
-	<div class="col-lg-1">
-		<label class="control-label" for="resume">Services (Only 2 free services)</label>
-	</div>
-	<div class="col-lg-3 checkboxScroll">
-	<ul>
-	<?php $discounted = 0; foreach($services as $key => $service) { 
-	    if(!empty($candidateDetails) && ($service['tcount'] - $service['scount'] > 0) && in_array($service['serviceId'], $candidateDetails['services'])) {
-	        $discounted++;
-	    }
-	?>
-	<li><label class="control-label"><input type="checkbox" name="services[]" class="<?php echo ($service['tcount'] - $service['scount']) > 0 ? 'discounted' : ''; ?>" onchange="displayDrilldown(this.id, this.checked, '<?php echo $service['tcount'] - $service['scount']; ?>')" id="service_<?php echo $service['serviceId']; ?>" value="<?php echo $service['serviceId']; ?>" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'checked="checked"' : ''; ?> <?php echo !empty($candidateDetails) && $discounted >= 2 && ($service['tcount'] - $service['scount']) > 0 && !in_array($service['serviceId'], $candidateDetails['services']) ? 'disabled="disabled"' : ''; ?> /> <?php echo $service['serviceName']; ?></label>
-	<?php if($service['drilldown'] == 'Y') { ?>
-		<ul class="vservice-ul" <?php echo !empty($candidateDetails) && in_array($service['serviceId'], $candidateDetails['services']) ? 'style="display:block;"' : ''; ?>>
-		<?php foreach($service['vservices'] as $key => $vservice) {?>
-			<li><label class="control-label"><input type="checkbox" name="vservices[<?php echo $service['serviceId'];?>][]" id="vservice_<?php echo $vservice['vserviceId']; ?>" value="<?php echo $vservice['vserviceId']?>" <?php echo !empty($candidateDetails) && in_array($vservice['vserviceId'], $candidateDetails['vservices']) ? 'checked="checked"' : ''; ?> /> <?php echo $vservice['vendorServiceName']; ?></label></li>
-		<?php } ?>
-		</ul>
-	<?php } ?>
-	</li>
-	<?php } ?>
-	</ul>
-   	</div>
-</div>
-<input type="hidden" id="id" name="candidateId" value="<?php echo !empty($candidateDetails) ? $candidateDetails['id'] : ''; ?>" />
-
-<div class="row">
-	<div class="col-lg-1"><input type="submit" name="submit" value="Submit" class="btn btn-primary"/></div>
-</div>
-</form>
 <script>
 document.getElementById('itYes').click();
 </script>
