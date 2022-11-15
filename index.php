@@ -304,8 +304,7 @@ function getCandidate(email) {
             	document.getElementById('resume').after(resumeElement);
             } else if(e[0] == 'services') {
             	e[1].forEach(function(value){
-            		if(value != 0 && value != null) {
-            		console.log(value.serviceId != null);
+            		if(value != 0 && value != null && value.serviceId != null) {
             			document.querySelector("#service_" + value.serviceId).setAttribute('checked', 'checked');
             		}
             		if(value.discounted == 1) {
