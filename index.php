@@ -291,6 +291,7 @@ function getCandidate(email) {
         		values.forEach(function(value){
         			document.querySelector("#" + e[0] + " option[value='" + value + "']").setAttribute("selected", "selected");
         		});
+        		$('.js-example-basic-single, .js-example-basic-multiple').select2();
             } else if(e[0] == 'servingNotice') {
             	var noticeId = e[1] == '1' ? 'servingNoticeYes' : 'servingNoticeNo';
             	document.querySelector("#" + noticeId).setAttribute('checked', 'checked');
