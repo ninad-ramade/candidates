@@ -289,6 +289,7 @@ function getCandidate(email) {
             if(e[0] == 'skills' || e[0] == 'currentLocation' || e[0] == 'preferredLocation') {
             	var values = e[1].split(",");
         		values.forEach(function(value){
+            		console.log(value);
         			document.querySelector("#" + e[0] + " option[value='" + value + "']").setAttribute("selected", "selected");
         		});
             } else if(e[0] == 'servingNotice') {
