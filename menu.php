@@ -24,4 +24,4 @@ if(empty($email) && $mode != 'new') {
   </div>
 </nav>
 <?php }} ?>
-<div class="container-fluid <?php echo $_SERVER['REQUEST_URI'] == '/' ? 'candidateFormBg' : ''; ?>">
+<div class="container-fluid <?php echo $_SERVER['REQUEST_URI'] == '/' || strstr($_SERVER['REQUEST_URI'], 'index.php') ? 'candidateFormBg' : ''; ?>">
