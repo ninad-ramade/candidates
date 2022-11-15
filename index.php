@@ -303,9 +303,9 @@ function getCandidate(email) {
             	resumeElement.innerHTML = resumeFile;
             	document.getElementById('resume').after(resumeElement);
             } else if(e[0] == 'services') {
+            		console.log(value);
             	e[1].forEach(function(value){
             		if(value != 0 && value != null) {
-            		console.log(value.serviceId);
             			document.querySelector("#service_" + value.serviceId).setAttribute('checked', 'checked');
             		}
             		if(value.discounted == 1) {
