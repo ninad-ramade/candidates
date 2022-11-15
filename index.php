@@ -303,7 +303,7 @@ function getCandidate(email) {
             	resumeElement.innerHTML = resumeFile;
             	document.getElementById('resume').after(resumeElement);
             } else if(e[0] == 'services') {
-            		console.log(value);
+            		console.log(e[1]);
             	e[1].forEach(function(value){
             		if(value != 0 && value != null) {
             			document.querySelector("#service_" + value.serviceId).setAttribute('checked', 'checked');
