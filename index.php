@@ -2,6 +2,9 @@
 //ini_set('display_errors', 1);
 include_once 'config.php';
 session_start();
+if($_SESSION['user']['readOnlyAccess'] == 1) {
+    echo 'Unauthorized access!';exit; 
+}
 $email = !empty($_GET['ce']) ? base64_decode($_GET['ce']) : '';
 $mode = !empty($_GET['m']) ? base64_decode($_GET['m']) : '';
 $id = !empty($_GET['id']) ? base64_decode($_GET['id']) : '';

@@ -613,7 +613,9 @@ include 'menu.php'; ?>
 	}
     ?></td>
 	<?php } ?>
-	<td><a class="btn btn-primary" href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . '?id=' . base64_encode($candidate['id']); ?>" class="button">Edit</a></td>
+	<?php if($_SESSION['user']['readOnlyAccess'] == 2) { ?>
+		<td><a class="btn btn-primary" href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . '?id=' . base64_encode($candidate['id']); ?>" class="button">Edit</a></td>
+	<?php } ?>
 </tr>
 <?php } ?>
 </table>

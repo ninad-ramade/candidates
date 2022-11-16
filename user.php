@@ -2,6 +2,9 @@
 //ini_set('display_errors', 1);
 include_once 'config.php';
 session_start();
+if($_SESSION['user']['readOnlyAccess'] == 1) {
+    echo 'Unauthorized access!';exit;
+}
 function getUser($email) {
     $db = new mysqli(servername, username, password, dbname);
     $sql = "SELECT * FROM users WHERE email = '" . $email . "'";
@@ -26,7 +29,7 @@ if(isset($_POST['submit'])) {
     if(!empty($existingSKill) && count($existingSKill) > 0) {
         echo 'User with email ' .$email. ' already exists.';
     } else {
-        $sql = "INSERT INTO users (username, email, name, password, createdOn, createdBy) VALUES ('" . $email . "', '" . $email . "', '" . $name . "', '" . $password . "', '" . date('Y-m-d H:i:s') . "', '" . $userId . "')";
+        $sql = "INSERT INTO users (username, email, name, password, createdOn, createdBy, readOnlyAccess) VALUES ('" . $email . "', '" . $email . "', '" . $name . "', '" . $password . "', '" . date('Y-m-d H:i:s') . "', '" . $userId . "', " . $_POST['readOnlyAccess'] . ")";
         if ($db->query($sql) === TRUE) {
             echo "User created successfully";
         } else {
@@ -80,6 +83,15 @@ include 'menu.php'; ?>
 		</div>
 		<div class="col-lg-3">
 			<input type="password" name="password2" class="form-control" id="password2" required />
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-1">
+			<label for="email">Read only acccess?</label>
+		</div>
+		<div class="col-lg-3">
+			<label for="readOnlyAccessYes"><input type="radio" name="readOnlyAccess" id="readOnlyAccessYes" value="1" required /> Yes</label>
+			<label for="readOnlyAccessNo"><input type="radio" name="readOnlyAccess" id="readOnlyAccessNo" value="2" checked required /> No</label>
 		</div>
 	</div>
 	<div class="row">

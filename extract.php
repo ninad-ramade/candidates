@@ -2,6 +2,9 @@
 //ini_set('display_errors', 1);
 include_once 'config.php';
 session_start();
+if($_SESSION['user']['readOnlyAccess'] == 1) {
+    echo 'Unauthorized access!';exit;
+}
 $resumeDir = 'profiles/unprocessed';
 $processedResumeDir = 'profiles/processed';
 $files = array_diff(scandir($resumeDir), ['.', '..']);

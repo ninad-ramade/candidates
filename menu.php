@@ -14,9 +14,11 @@ if(empty($email) && $mode != 'new') {
     </div>
     <ul class="nav navbar-nav">
     	<li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'report.php'; ?>">Candidates</a></li>
+    	<?php if($_SESSION['user']['readOnlyAccess'] == 2) { ?>
       	<li><a href="/">Candidate Form</a></li>
 		<li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'extract.php'; ?>">Extract Profiles</a></li>
 		<li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'user.php'; ?>">Create User</a></li>
+		<?php } ?>
     </ul>
     <ul class="nav navbar-nav navbar-right">
       <li><a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'login.php'; ?>"><?php echo $_SESSION['user']['name']; ?>, Logout</a></li>
