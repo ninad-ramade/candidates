@@ -409,9 +409,15 @@ function loadSkills(it) {
 	<div class="col-lg-6">
         <form method="post" class="candidateForm" action="index.php?ce=<?php echo !empty($_GET['ce']) ? $_GET['ce'] : ''; ?>&id=<?php echo !empty($_GET['id']) ? $_GET['id'] : ''; ?>&m=<?php echo !empty($_GET['m']) ? $_GET['m'] : ''; ?>" enctype="multipart/form-data">
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-5">
             	Press Ctrl and select for multiple options.<br/>Mail to <a href="mailto:support@rapidjobs.co.in">support@rapidjobs.co.in</a> for any queries.
             </div>
+        	<div class="col-lg-2">
+        		<label class="control-label" for="email">Referral Code</label>
+        	</div>
+        	<div class="col-lg-2">
+        		<input type="text" name="referralCode" id="referralCode" class="form-control" value="<?php echo !empty($candidateDetails) ? $candidateDetails['referralCode'] : ''; ?>" <?php echo !empty($candidateDetails['referralCode']) ? 'readonly' : ''; ?>/>
+        	</div>
         </div>
         <div class="row">
         	<div class="col-lg-3">
