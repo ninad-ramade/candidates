@@ -413,7 +413,7 @@ function loadSkills(it) {
             	Press Ctrl and select for multiple options.<br/>Mail to <a href="mailto:support@rapidjobs.co.in">support@rapidjobs.co.in</a> for any queries.
             </div>
         	<div class="col-lg-2">
-        		<label class="control-label" for="email">Referral Code</label>
+        		<label class="control-label" for="email">Referral Code (if available)</label>
         	</div>
         	<div class="col-lg-2">
         		<input type="text" name="referralCode" id="referralCode" class="form-control" value="<?php echo !empty($candidateDetails) ? $candidateDetails['referralCode'] : ''; ?>" <?php echo !empty($candidateDetails['referralCode']) ? 'readonly' : ''; ?>/>
