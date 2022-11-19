@@ -90,7 +90,7 @@ function getSkillFromContent($content) {
 }
 function getExperienceFromContent($content) {
     $yearIndex = strpos(strtolower($content), 'year');
-    return (int) substr($content, $yearIndex -4, 4);
+    return $yearIndex ? (int) substr($content, $yearIndex -4, 4) : 0;
 }
 function getPhoneFromContent($content) {
     preg_match_all("/[+91\s-]+[6-9][0-9]{9}/", $content, $phones);
