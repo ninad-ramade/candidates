@@ -88,6 +88,10 @@ function getSkillFromContent($content) {
     }
     return $skills;
 }
+function getExperienceFromContent($content) {
+    $yearIndex = strpos(strtolower($content), 'year');
+    return (int) substr($content, $yearIndex -3, 3);
+}
 function getPhoneFromContent($content) {
     preg_match_all("/[+91\s-]+[6-9][0-9]{9}/", $content, $phones);
     $phones = array_filter($phones);
@@ -168,6 +172,7 @@ else {
             $skillTexts = implode(", ", $skills['skills']);
         }
         $locations = getLocationsFromContent($content);
+        $experience = getExperienceFromContent($content);
         if(!empty($locations)) {
             $locationIds = $locations['id'];
             $currentLocation = !empty($locationIds) ? $locationIds[0] : '';
@@ -191,37 +196,11 @@ else {
                 $finalEducations = ','.implode(",", $educations).',';
             }
             if(!empty($existingCandidate)) {
-                switch ($existingCandidate['overallExperience']) {
-                    case '0-3':
-                        $overallExp = 3;
-                        break;
-                    case '4-7':
-                        $overallExp = 7;
-                        break;
-                    case '8-10':
-                        $overallExp = 10;
-                        break;
-                    case '>10':
-                        $overallExp = 12;
-                        break;
-                }
-                switch ($existingCandidate['relevantExperience']) {
-                    case '0-3':
-                        $relevantExp = 3;
-                        break;
-                    case '4-7':
-                        $relevantExp = 7;
-                        break;
-                    case '8-10':
-                        $relevantExp = 10;
-                        break;
-                    case '>10':
-                        $relevantExp = 12;
-                        break;
-                }
+                $overallExp = !empty($existingCandidate['overallExperience']) ? $existingCandidate['overallExperience'] : $experience;
+                $relevantExp = !empty($existingCandidate['relevantExperience']) ? $existingCandidate['relevantExperience'] : $experience;
                 $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skillIds . "', subskills = '" . $skillIds . "', currentLocation = '" . $currentLocation . "', preferredLocation = '" . $preferredLocations . "', overallExperience = '" . $overallExp . "', relevantExperience = '" . $relevantExp . "', education = '" . $finalEducations . "',  resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
             } else {
-                $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, currentLocation, preferredLocation, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skillIds."', '".$skillIds."', '".$currentLocation."', '".$preferredLocations."', '" . $resume . "', 'Created')";
+                $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, currentLocation, preferredLocation, overallExperience, releavantExperience, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skillIds."', '".$skillIds."', '".$currentLocation."', '".$preferredLocations."', '". $experience ."', '" .$experience. "', '" . $resume . "', 'Created')";
             }
             try {
                 if($db->query($sql) === TRUE) {

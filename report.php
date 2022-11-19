@@ -494,8 +494,8 @@ function setPagination(start) {
 <?php 
 include 'header.php';
 include 'menu.php'; ?>
-
 <form action="report.php" id="candidateForm" method="post" enctype="multipart/form-data">
+<?php if($_SESSION['user']['readOnlyAccess'] == 2) { ?>
 	<div class="row">
         <div class="col-lg-2">
             <textarea id="customBody" name="customBody" class="form-control" placeholder="Email body"></textarea>
@@ -523,6 +523,7 @@ include 'menu.php'; ?>
         	<a href="<?php echo $protocol . '://' . $_SERVER['SERVER_NAME'] . baseurl . 'assets/import_template.xlsx'; ?>" class="btn btn-success">Template</a>
         </div>
   	</div>
+<?php } ?>
 <h3>Resume List</h3>
 <div class="row">
 	<div class="col-lg-2">
@@ -563,6 +564,7 @@ include 'menu.php'; ?>
         <option value="">Any</option>
         </select>
   	</div>
+  	<?php if($_SESSION['user']['readOnlyAccess'] == 2) { ?>
 	<div class="col-lg-2">
 		<label for="preferredLocation">Status</label>
     	<select id="status" name="status[]" multiple="multiple" class="form-control js-example-basic-multiple">
@@ -572,6 +574,7 @@ include 'menu.php'; ?>
     	<option value="Updated by Admin">Updated by Admin</option>
     	</select>
   	</div>
+  	<?php } ?>
 	<div class="col-lg-2">
     	<label>Salary Range (Lacs)</label>
     	<input name="salaryFrom" id="salaryFrom" class="form-control" type="text" placeholder="From" value="<?php echo !empty($_POST['salaryFrom']) ? $_POST['salaryFrom'] : ''; ?>" />
