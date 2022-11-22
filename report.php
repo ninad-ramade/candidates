@@ -168,9 +168,6 @@ function getSkills($id = null, $groupParent = null) {
     else if(!empty($groupParent)) {
         $sql .= " WHERE groupParent IN (" . implode(",", array_filter($groupParent)) . ")";
     }
-    else {
-        $sql .= " WHERE displayskill = 'Y'";
-    }
     $sql .= " ORDER BY skill ASC";
     $result = $db->query($sql);
     $skills = [];

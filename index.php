@@ -67,7 +67,7 @@ function getSkills($skill = null, $it = null) {
         $sql .= " WHERE LOWER(skill) = '" . strtolower($skill) . "'";
     } else {
         if(!is_null($it)) {
-            $sql .= " WHERE it = " . (int) $it . " AND displayskill = 'Y'";
+            $sql .= " WHERE it = " . (int) $it;
         }
         $sql .= " ORDER BY skill ASC";
     }
