@@ -1,5 +1,5 @@
 <?php
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -47,8 +47,8 @@ function getCandidates($filterData = [], $start, $limit, $action) {
                     } else {
                         $innerWhere[] = $filter . ' like "%'. $value .'%"';
                     }
+                    array_push($where, '('. implode(" OR ", $innerWhere) . ')');
                 }
-                array_push($where, '('. implode(" OR ", $innerWhere) . ')');
             }
         }
         if($action == 'Send candidate update') {
@@ -165,8 +165,11 @@ function getSkills($id = null, $groupParent = null) {
     if(!empty($id)) {
         $sql .= " WHERE id IN (" . implode(",", array_filter($id)) . ")";
     }
-    if(!empty($groupParent)) {
+    else if(!empty($groupParent)) {
         $sql .= " WHERE groupParent IN (" . implode(",", array_filter($groupParent)) . ")";
+    }
+    else {
+        $sql .= " WHERE displaySkill = 'Y'";
     }
     $sql .= " ORDER BY skill ASC";
     $result = $db->query($sql);
