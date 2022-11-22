@@ -600,14 +600,14 @@ include 'menu.php'; ?>
 </tr>
 <?php foreach($candidates as $candidate) { ?>
 <tr>
-	<?php foreach($columns as $column){ if($column == 'id') {continue;}var_dump($candidateSkills, $candidate[$column]);exit; ?>
+	<?php foreach($columns as $column){ if($column == 'id') {continue;} ?>
 	<td><?php 
 	if($column == 'servingNotice' || $column == 'it') {
 	    echo !empty($candidate[$column]) ? ($candidate[$column] == 1 ? 'Yes' : 'No') : '';
 	} else if ($column == 'education') {
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateQualifications, array_flip($candidate[$column]))) : '';
 	}
-	else if ($column == 'skills') {
+	else if ($column == 'skills') {var_dump($candidateSkills, $candidate[$column]);exit;
 	    echo !empty($candidateSkills) ? '<span title="'. implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column]))) . '">' . implode(", ", $_POST['skills']). '</span>' : (in_array(172, $data['skills']) && count($data['skills']) == 1 ? 'NONE' : '');
 	} else if ($column == 'currentLocation' || $column == 'preferredLocation') {
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateLocations, array_flip($candidate[$column]))) : '';
