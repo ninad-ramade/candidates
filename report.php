@@ -608,7 +608,7 @@ include 'menu.php'; ?>
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateQualifications, array_flip($candidate[$column]))) : '';
 	}
 	else if ($column == 'skills') {
-	    echo !empty($candidateSkills) ? '<span title="'. implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column]))) . '"></span>' : (in_array(172, $data['skills']) && count($data['skills']) == 1 ? 'NONE' : '');
+	    echo !empty($candidateSkills) ? '<span title="'. implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column]))) . '">' . implode(", ", $_POST['skills']). '</span>' : (in_array(172, $data['skills']) && count($data['skills']) == 1 ? 'NONE' : '');
 	} else if ($column == 'currentLocation' || $column == 'preferredLocation') {
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateLocations, array_flip($candidate[$column]))) : '';
 	} else {
