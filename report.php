@@ -600,7 +600,7 @@ include 'menu.php'; ?>
 </tr>
 <?php foreach($candidates as $candidate) { ?>
 <tr>
-	<?php foreach($columns as $column){ if($column == 'id') {continue;}?>
+	<?php foreach($columns as $column){ if($column == 'id') {continue;}var_dump($candidateSkills, $candidate[$column]);exit; ?>
 	<td><?php 
 	if($column == 'servingNotice' || $column == 'it') {
 	    echo !empty($candidate[$column]) ? ($candidate[$column] == 1 ? 'Yes' : 'No') : '';
