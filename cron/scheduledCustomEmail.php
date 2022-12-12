@@ -43,11 +43,11 @@ while ($emailCount < 5) {
                         $candidates[] = $row;
                     }
                     foreach ($candidates as $candidate) {
-                        if(!empty($candidate['resume'])) {
+                        /* if(!empty($candidate['resume'])) {
                             $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
                             $db->query($sql);
                             continue;
-                        }
+                        } */
                         var_dump($candidate);exit;
                         if($candidate['email'] != 'ninad.ramade@pegasusone.com') {
                             continue;
