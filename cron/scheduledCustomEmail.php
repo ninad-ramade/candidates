@@ -80,13 +80,15 @@ while ($emailCount < 5) {
                         $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                         if($db->query($sql) === TRUE) {
                             $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, '');
+                            
+                            var_dump($customEmailResponse); exit;
                             if($customEmailResponse !== true) {
                                 $failedEmails[] = $candidate['email'] . ' Error: ' . $customEmailResponse;
                             } else {
                                 $emailCount++;
                             }
                         }
-                    }exit;
+                    }var_dump($failedEmails); exit;
                 }
                 $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
                 $db->query($sql);
