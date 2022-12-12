@@ -80,6 +80,7 @@ while ($emailCount < 5) {
                         $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                         if($db->query($sql) === TRUE) {
                             $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, '');
+                            var_dump($customEmailResponse, $candidate['email']);
                             if($customEmailResponse !== true) {
                                 $failedEmails[] = $candidate['email'] . ' Error: ' . $customEmailResponse;
                             } else {
