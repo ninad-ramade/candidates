@@ -1,7 +1,8 @@
 <?php 
 ini_set('display_errors', 1);
-include_once 'config.php';
+include_once __DIR__ . '/../config.php';
 use PHPMailer\PHPMailer\PHPMailer;
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/Exception.php';
 require_once __DIR__ . '/../vendor/phpmailer/phpmailer/src/PHPMailer.php';
 ini_set('max_execution_time', 0);
