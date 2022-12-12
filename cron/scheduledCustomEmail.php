@@ -48,7 +48,6 @@ while ($emailCount < 5) {
                             $db->query($sql);
                             continue;
                         } */
-                        var_dump($candidate);exit;
                         if($candidate['email'] != 'ninad.ramade@pegasusone.com') {
                             continue;
                         }
@@ -87,7 +86,7 @@ while ($emailCount < 5) {
                                 $emailCount++;
                             }
                         }
-                    }
+                    }exit;
                 }
                 $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
                 $db->query($sql);
