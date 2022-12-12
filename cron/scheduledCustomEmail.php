@@ -11,7 +11,7 @@ set_time_limit(0);
 $db = new mysqli(servername, username, password, dbname);
 $date = date('Y-m-d');
 $emailCount = 0;
-$logHandle = fopen('cron/cron.log', 'c');
+$logHandle = fopen('cron.log', 'c');
 while ($emailCount < 5) {
     $failedEmails = [];
     $requirements = [];
