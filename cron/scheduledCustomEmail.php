@@ -77,7 +77,7 @@ while ($emailCount < 5) {
                         if(!empty($eachReq['worklocation'])) {
                             $subject .= " at " . implode(", ", $candidateLocations) . " location";
                         }
-                        $sql = "INSERT INTO applications (vendorId, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
+                        $sql = "INSERT INTO applications (vendorId, jobid, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $eachReq['vreqid'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                         if($db->query($sql) === TRUE) {
                             $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, '');
                             if($customEmailResponse !== true) {
