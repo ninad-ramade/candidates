@@ -86,7 +86,7 @@ while ($emailCount < 5) {
                                 $emailCount++;
                             }
                         }
-                    }exit;
+                    }var_dump($failedEmails);exit;
                 }
                 $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
                 $db->query($sql);
