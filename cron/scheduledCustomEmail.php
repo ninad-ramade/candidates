@@ -22,6 +22,7 @@ while ($emailCount < 5) {
                 $requirements[] = $row;
             }
             $where = [];
+            var_dump($requirements);exit;
             foreach($requirements as $eachReq) {
                 $sql = "UPDATE vendor_req SET cronStatus = 1 WHERE vreqid = " . $eachReq['vreqid'];
                 $db->query($sql);
