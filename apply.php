@@ -29,7 +29,7 @@ $recruiterEmail = mysqli_fetch_assoc($result);
 $sql = "SELECT resume FROM candidates WHERE id = " . $application['candidateId'];
 $result = $db->query($sql);
 $candidate = mysqli_fetch_assoc($result);
-var_dump((isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['SERVER_NAME'], pathinfo($candidate['resume'], PATHINFO_DIRNAME));exit;
+var_dump((isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['SERVER_NAME'], pathinfo($candidate['resume'], PATHINFO_FILENAME));exit;
 $subjectArray = explode(' ', $application['subject']);
 $subjectArray[0] = 'Applied';
 $subject = implode(" ", $subjectArray);
