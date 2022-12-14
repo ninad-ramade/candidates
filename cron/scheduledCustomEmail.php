@@ -43,6 +43,7 @@ while ($emailCount < 500) {
                         $candidates[] = $row;
                     }
                     foreach ($candidates as $candidate) {
+                        var_dump($candidate);exit;
                         if($candidate['email'] != 'ninad.ramade@gmail.com') {
                             continue;
                         }
