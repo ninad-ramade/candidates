@@ -4,7 +4,7 @@
 </head>
 <body>
 <?php 
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 include_once 'config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -26,15 +26,15 @@ if(!$db->query($sql) === TRUE) {
 $sql = "SELECT recruiter.emailid FROM recruiter LEFT JOIN vendors ON vendors.recruiter_id = recruiter.recruiter_id WHERE vendors.id = " . $application['vendorId'];
 $result = $db->query($sql);
 $recruiterEmail = mysqli_fetch_assoc($result);
-var_dump($recruiterEmail);exit;
 $subjectArray = explode(' ', $application['subject']);
 $subjectArray[0] = 'Applied';
 $subject = implode(" ", $subjectArray);
-$recipient = $application['adminEmail'];
+$recipient = $recruiterEmail['emailid'];
 $mail = new PHPMailer();
 $mail->IsHTML(true);
 $mail->AddAddress($recipient);
 $mail->SetFrom($application['email'], $application['email']);
+$mail->addCC($application['adminEmail']);
 $mail->AddReplyTo($application['email']);
 $mail->Subject = $subject;
 $content = 'Hi,<br/><br/>I am interested for this position.<br/><br/>Thanks';
