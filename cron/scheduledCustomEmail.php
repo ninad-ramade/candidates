@@ -43,7 +43,6 @@ while ($emailCount < 500) {
                         $candidates[] = $row;
                     }
                     foreach ($candidates as $candidate) {
-                        var_dump($candidate);exit;
                         if($candidate['email'] != 'ninad.ramade@gmail.com') {
                             continue;
                         }
@@ -79,6 +78,7 @@ while ($emailCount < 500) {
                         $client = mysqli_fetch_assoc($result);
                         $body = $client['clientname'] . ' is looking for candidates with the experience in ' . (!empty($eachReq['skills']) ? implode(", ", array_intersect_key($candidateSkills, array_flip($skills))) : implode(", ", $candidateSkills)) . ', Salary Range: ' . $eachReq['BUDGETFROM'] . ' Lakhs To ' . $eachReq['BUDGETTO'] . ' Lakhs.<br/>
                         Job Description ' . $eachReq['JobDescription'];
+                        var_dump($body);exit;
                         $sql = "INSERT INTO applications (vendorId, jobid, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $eachReq['vreqid'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                         if($db->query($sql) === TRUE) {
                             $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $body);
