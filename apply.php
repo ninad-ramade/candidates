@@ -23,7 +23,7 @@ if(!$db->query($sql) === TRUE) {
     echo 'Application failed. Please contact HR.';
     exit;
 }
-var_dump($result);exit;
+var_dump($application);exit;
 $subjectArray = explode(' ', $application['subject']);
 $subjectArray[0] = 'Applied';
 $subject = implode(" ", $subjectArray);
