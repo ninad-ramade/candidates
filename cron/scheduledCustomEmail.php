@@ -12,7 +12,7 @@ $db = new mysqli(servername, username, password, dbname);
 $date = date('Y-m-d');
 $emailCount = 0;
 $logHandle = fopen('cron.log', 'c');
-while ($emailCount < 5) {
+while ($emailCount < 500) {
     $failedEmails = [];
     $requirements = [];
     while (count($requirements) < 1) {
@@ -43,14 +43,6 @@ while ($emailCount < 5) {
                         $candidates[] = $row;
                     }
                     foreach ($candidates as $candidate) {
-                        /* if(!empty($candidate['resume'])) {
-                            $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
-                            $db->query($sql);
-                            continue;
-                        } */
-                        if($candidate['email'] != 'ninad.ramade@pegasusone.com') {
-                            continue;
-                        }
                         $resultSkills = array_filter(explode(",", $candidate['skills']));
                         $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
                         try {
@@ -90,7 +82,7 @@ while ($emailCount < 5) {
                 }
                 $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
                 $db->query($sql);
-            }exit;
+            }
         }
         $date = date('Y-m-d', strtotime($date . ' - 1 Day'));
     }
