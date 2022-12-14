@@ -43,6 +43,7 @@ while ($emailCount < 5) {
                         $candidates[] = $row;
                     }
                     foreach ($candidates as $candidate) {
+                        var_dump($candidate);exit;
                         /* if(!empty($candidate['resume'])) {
                             $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
                             $db->query($sql);
@@ -90,7 +91,7 @@ while ($emailCount < 5) {
                 }
                 $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
                 $db->query($sql);
-            }
+            }exit;
         }
         $date = date('Y-m-d', strtotime($date . ' - 1 Day'));
     }
