@@ -76,9 +76,10 @@ while ($emailCount < 500) {
                         $sql = "SELECT * FROM vendor_clients WHERE clientid = " . $eachReq['CLIENTID'];
                         $result = $db->query($sql);
                         $client = mysqli_fetch_assoc($result);
-                        var_dump($client);exit;
                         $body = $client['clientname'] . ' is looking for candidates with the experience in ' . (!empty($eachReq['skills']) ? implode(", ", array_intersect_key($candidateSkills, array_flip($skills))) : implode(", ", $candidateSkills)) . ', Salary Range: ' . $eachReq['BUDGETFROM'] . ' Lakhs To ' . $eachReq['BUDGETTO'] . ' Lakhs.<br/>
                         Job Description ' . $eachReq['JobDescription'];
+                        
+                        var_dump($body);exit;
                         $sql = "INSERT INTO applications (vendorId, jobid, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $eachReq['vreqid'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
                         if($db->query($sql) === TRUE) {
                             $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $body);
