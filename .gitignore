@@ -1,3 +1,5 @@
 config.php
 profiles/*
 assets/import/*
+cron/cron.log
+cron/error_log
