@@ -23,7 +23,10 @@ if(!$db->query($sql) === TRUE) {
     echo 'Application failed. Please contact HR.';
     exit;
 }
-var_dump($application);exit;
+$sql = "SELECT recruiter.emailid FROM recruiter LEFT JOIN vendors.recruiter_id = recruiter.recruiter_id WHERE vendors.id = " . $application['vendorId'];
+$result = $db->query($sql);
+$recruiterEmail = mysqli_fetch_assoc($result);
+var_dump($recruiterEmail);exit;
 $subjectArray = explode(' ', $application['subject']);
 $subjectArray[0] = 'Applied';
 $subject = implode(" ", $subjectArray);
