@@ -38,7 +38,6 @@ $mail->IsHTML(true);
 $mail->AddAddress($recipient);
 $mail->SetFrom($application['email'], $application['email']);
 $mail->addCC($application['adminEmail']);
-$mail->addCC('ninad.ramade@gmail.com');
 $mail->AddReplyTo($application['email']);
 $mail->addAttachment('profiles/processed/' . pathinfo($candidate['resume'], PATHINFO_BASENAME));
 $mail->Subject = $subject;
