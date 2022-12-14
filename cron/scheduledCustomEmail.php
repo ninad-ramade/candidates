@@ -66,7 +66,6 @@ while ($emailCount < 500) {
                             }
                         } catch (mysqli_sql_exception $e) {
                         }
-                        var_dump('hi');exit;
                         $subject = "Profile for " . (!empty($eachReq['skills']) ? implode(", ", array_intersect_key($candidateSkills, array_flip($skills))) : implode(", ", $candidateSkills));
                         if(!empty($eachReq['overallexp'])) {
                             $subject .= " with " . $eachReq['overallexp'] . " Years experience";
