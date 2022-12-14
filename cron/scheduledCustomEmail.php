@@ -94,6 +94,8 @@ while ($emailCount < 500) {
     }
     fwrite($logHandle, $prefix . $log . "\r\n");
 }
+$db->close();
+exit;
 function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
     $protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
     $fromEmail = 'support@rapidjobs.co.in';
