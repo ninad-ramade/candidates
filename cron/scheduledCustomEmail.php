@@ -1,5 +1,6 @@
 <?php 
 //ini_set('display_errors', 1);
+exit;
 include_once __DIR__ . '/../config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 require_once __DIR__ . '/../vendor/autoload.php';
