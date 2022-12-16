@@ -74,14 +74,13 @@ while ($emailCount < 500) {
                         $client = mysqli_fetch_assoc($result);
                         $body = $client['clientname'] . ' is looking for candidates with the experience in ' . (!empty($eachReq['skills']) ? implode(", ", array_intersect_key($candidateSkills, array_flip($skills))) : implode(", ", $candidateSkills)) . ', Salary Range: ' . $eachReq['BUDGETFROM'] . ' Lakhs To ' . $eachReq['BUDGETTO'] . ' Lakhs.' . 
                             (!empty($eachReq['JobDescription']) ? '<br/>Job Description: ' . $eachReq['JobDescription'] : '');
-                        $sql = "INSERT INTO applications (vendorId, jobid, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $eachReq['reqno'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
-                        if($db->query($sql) === TRUE) {
-                            $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $body);
-                            if($customEmailResponse !== true) {
-                                $failedEmails[] = $candidate['email'] . ' Error: ' . $customEmailResponse;
-                            } else {
-                                $emailCount++;
-                            }
+                        $customEmailResponse = sendCustomEmail($candidate['email'], $candidate['name'], $db->insert_id, $subject, $body);
+                        if($customEmailResponse !== true) {
+                            $failedEmails[] = $candidate['email'] . ' Error: ' . $customEmailResponse;
+                        } else {
+                            $sql = "INSERT INTO applications (vendorId, jobid, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $eachReq['reqno'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
+                            $db->query($sql);
+                            $emailCount++;
                         }
                     }
                 }
