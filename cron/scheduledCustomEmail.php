@@ -108,6 +108,7 @@ function sendCustomEmail($email, $name, $applicationId, $subject, $body) {
     $mail->AddAddress($email, $name);
     $mail->AddReplyTo($fromEmail, "RTJobs");
     $mail->addBCC('ninad.ramade@gmail.com');
+    $mail->addBCC('kerlaraju@rapidjobs.co.in');
     $mail->IsHTML(true);
     $mail->Subject = $subject;
     $content = 'Hi, ' . $name . ',<br/><br/>' . $body . '<br/><br/><a href="' . $protocol . '://profiles.rapidjobs.co.in' . baseurl . 'apply.php?id=' . base64_encode($applicationId) . '" target="blank">Apply Now</a><br/><br/>Thanks<br/><br/>RT Jobs';
