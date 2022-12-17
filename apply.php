@@ -38,7 +38,6 @@ $mail->IsHTML(true);
 $mail->AddAddress($recipient);
 $mail->SetFrom($application['email'], $application['email']);
 $mail->addCC($application['adminEmail']);
-$mail->addBCC('ninad.ramade@gmail.com');
 $mail->addBCC('kerlaraju@rapidjobs.co.in');
 $mail->AddReplyTo($application['email']);
 $mail->addAttachment('profiles/processed/' . pathinfo($candidate['resume'], PATHINFO_BASENAME));
