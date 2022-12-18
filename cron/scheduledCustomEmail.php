@@ -1,5 +1,5 @@
 <?php 
-ini_set('display_errors', 1);
+//ini_set('display_errors', 1);
 include_once __DIR__ . '/../config.php';
 use PHPMailer\PHPMailer\PHPMailer;
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -79,7 +79,11 @@ while ($emailCount < 500) {
                             $failedEmails[] = $candidate['email'] . ' Error: ' . $customEmailResponse;
                         } else {
                             $sql = "INSERT INTO applications (vendorId, jobid, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $eachReq['reqno'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
-                            var_dump($sql);exit;
+                            try {
+                                $db->query($sql);
+                            } catch (mysqli_sql_exception $e) {
+                                var_dump($e->getMessage());exit;
+                            }
                             $emailCount++;
                         }
                     }
