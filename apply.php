@@ -24,6 +24,7 @@ if(!$db->query($sql) === TRUE) {
     exit;
 }
 $sql = "SELECT recruiter.emailid FROM recruiter LEFT JOIN vendor_req ON vendor_req.ven_recruiter_id = recruiter.recruiter_id WHERE vendor_req.reqno = " . $application['jobid'];
+var_dump($sql);exit;
 $result = $db->query($sql);
 $recruiterEmail = mysqli_fetch_assoc($result);
 $sql = "SELECT resume FROM candidates WHERE id = " . $application['candidateId'];
