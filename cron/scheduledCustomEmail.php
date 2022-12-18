@@ -79,7 +79,7 @@ while ($emailCount < 500) {
                             $failedEmails[] = $candidate['email'] . ' Error: ' . $customEmailResponse;
                         } else {
                             $sql = "INSERT INTO applications (vendorId, jobid, candidateId, email, emailSentBy, emailSentOn, subject, status) VALUES (" . $eachReq['vendorid'] . ", " . $eachReq['reqno'] . ", " . $candidate['id'] . ", '" . $candidate['email'] . "', 1, '" . date('Y-m-d H:i:s') . "', '" . $subject . "', 'Email sent')";
-                            $db->query($sql);
+                            var_dump($db->query($sql));exit;
                             $emailCount++;
                         }
                     }
