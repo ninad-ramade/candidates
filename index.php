@@ -298,7 +298,10 @@ function getCandidate(email) {
             } else if(e[0] == 'servingNotice') {
             	var noticeId = e[1] == '1' ? 'servingNoticeYes' : 'servingNoticeNo';
             	document.querySelector("#" + noticeId).setAttribute('checked', 'checked');
-            } else if(e[0] == 'resume') {
+            } else if(e[0] == 'freelance') {
+            	var freelanceId = e[1] == '1' ? 'freelanceYes' : 'freelanceNo';
+            	document.querySelector("#" + freelanceId).setAttribute('checked', 'checked');
+            }  else if(e[0] == 'resume') {
             	var resumeElement = document.createElement('a');
             	resumeElement.setAttribute('href', e[1]);
             	resumeElement.setAttribute('target', 'blank');
@@ -335,6 +338,7 @@ function getCandidate(email) {
         			}
         		});
         	}
+        	document.getElementById('referralCode').setAttribute('readonly', 'readonly');
         }
 	}
 	xhr.send("email=" + email);
@@ -589,7 +593,16 @@ function loadSkills(it) {
         		<label><input type="radio" name="servingNotice" id="servingNoticeNo" value="2" <?php echo !empty($candidateDetails) ? (2 == $candidateDetails['servingNotice'] ? 'checked' : '') : ''; ?> /> No</label>
         	</div>
         </div>
-        
+        <div class="row">
+        	<div class="col-lg-3">
+        		<label class="control-label" for="freelance">Freelance/Dual?</label>
+        	</div>
+        	<div class="col-lg-6">
+        		<label><input type="radio" name="freelance" id="freelanceYes" value="1" <?php echo !empty($candidateDetails) ? (1 == $candidateDetails['freelance'] ? 'checked' : '') : ''; ?> /> Yes</label>
+        		<label><input type="radio" name="freelance" id="freelanceNo" value="2" <?php echo !empty($candidateDetails) ? (2 == $candidateDetails['freelance'] ? 'checked' : '') : ''; ?> /> No</label>
+        	</div>
+        </div>
+        <?php /* ?>
         <div class="row">
         	<div class="col-lg-3">
         		<label class="control-label" for="resume">Services (Only 2 free services)</label>
@@ -614,6 +627,7 @@ function loadSkills(it) {
         	</ul>
            	</div>
         </div>
+        <?php */ ?>
         <input type="hidden" id="id" name="candidateId" value="<?php echo !empty($candidateDetails) ? $candidateDetails['id'] : ''; ?>" />
         
         <div class="row">

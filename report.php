@@ -27,6 +27,9 @@ function getCandidates($filterData = [], $start, $limit, $action) {
     } */
     if(!empty(array_filter($filterData))) {
         foreach($filterData as $filter => $value) {
+            if($filter == 'allskills') 
+                continue;
+            
             $innerWhere = [];
             if(!empty($value)) {
                 if($filter == 'salaryFrom' || $filter == 'salaryTo') {
@@ -47,7 +50,8 @@ function getCandidates($filterData = [], $start, $limit, $action) {
                     } else {
                         $innerWhere[] = $filter . ' like "%'. $value .'%"';
                     }
-                    array_push($where, '('. implode(" OR ", $innerWhere) . ')');
+                    $implodeOperator = isset($filterData['allskills']) ? ' AND ' : ' OR ';
+                    array_push($where, '('. implode($implodeOperator, $innerWhere) . ')');
                 }
             }
         }
@@ -533,6 +537,7 @@ include 'menu.php'; ?>
         <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['groupParent'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
         <?php } ?>
         </select>
+        <label><input name="allskills" id="allskills" type="checkbox" <?php echo !empty($_POST['allskills']) ? 'checked="checked"' : ''; ?> /> All skills</label>
    	</div>
    	<?php /* ?>
 	<div class="col-lg-2">
