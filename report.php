@@ -63,7 +63,6 @@ function getCandidates($filterData = [], $start, $limit, $action) {
         $sql .= ' WHERE (' . implode(" AND ", array_filter($where)) . ')';
     }
     $sql .= ' ORDER BY id DESC';
-    var_dump($sql);
     $allSql = $sql;
     $allSql .= ' LIMIT ' . $start . ', 5000';
     $countResult = $db->query($allSql);
