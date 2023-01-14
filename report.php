@@ -27,7 +27,7 @@ function getCandidates($filterData = [], $start, $limit, $action) {
     } */
     if(!empty(array_filter($filterData))) {
         foreach($filterData as $filter => $value) {
-            if($filter == 'allskills') 
+            if($filter == 'subskills')
                 continue;
             
             $innerWhere = [];
@@ -50,7 +50,7 @@ function getCandidates($filterData = [], $start, $limit, $action) {
                     } else {
                         $innerWhere[] = $filter . ' like "%'. $value .'%"';
                     }
-                    $implodeOperator = isset($filterData['allskills']) ? ' AND ' : ' OR ';
+                    $implodeOperator = !empty($filterData['subskills']) ? ' AND ' : ' OR ';
                     array_push($where, '('. implode($implodeOperator, $innerWhere) . ')');
                 }
             }
@@ -63,6 +63,7 @@ function getCandidates($filterData = [], $start, $limit, $action) {
         $sql .= ' WHERE (' . implode(" AND ", array_filter($where)) . ')';
     }
     $sql .= ' ORDER BY id DESC';
+    var_dump($sql);
     $allSql = $sql;
     $allSql .= ' LIMIT ' . $start . ', 5000';
     $countResult = $db->query($allSql);
@@ -531,25 +532,20 @@ include 'menu.php'; ?>
 <h3>Resume List</h3>
 <div class="row">
 	<div class="col-lg-2">
-    	<label for="skills">Skills/Keywords</label>
+    	<label for="skills">Primary Skills/Keywords</label>
         <select id="skills" name="skills[]" multiple="multiple" class="form-control js-example-basic-multiple">
         <?php foreach($skills as $eachskill) { ?>
         <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($_POST['skills']) ? (in_array($eachskill['groupParent'], $_POST['skills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
         <?php } ?>
         </select>
-        <label><input name="allskills" id="allskills" type="checkbox" <?php echo !empty($_POST['allskills']) ? 'checked="checked"' : ''; ?> /> All skills</label>
-   	</div>
-   	<?php /* ?>
-	<div class="col-lg-2">
-    	<label for="subskills">Sub Skills</label>
-        <select id="subskills" name="subskills[]" multiple="multiple" class="form-control">
+    	<label for="subskills">Secondary Skills</label>
+        <select id="subskills" name="subskills[]" multiple="multiple" class="form-control js-example-basic-multiple">
         <option value="">Select</option>
         <?php foreach($skills as $eachskill) { ?>
         <option value="<?php echo $eachskill['id']; ?>" <?php echo !empty($_POST['subskills']) ? (in_array($eachskill['groupParent'], $_POST['subskills']) ? 'selected="selected"' : '') : ''; ?>><?php echo $eachskill['skill']; ?></option>
         <?php } ?>
         </select>
    	</div>
-   	<?php */ ?>
 	<div class="col-lg-1">
 		<label>Overall Exp</label>
         <input name="overallExperienceFrom" id="overallExperienceFrom" class="form-control" type="number" step="1" min="0" placeholder="From" value="<?php echo !empty($_POST['overallExperienceFrom']) ? $_POST['overallExperienceFrom'] : ''; ?>" />
@@ -613,7 +609,7 @@ include 'menu.php'; ?>
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateQualifications, array_flip($candidate[$column]))) : '';
 	}
 	else if ($column == 'skills') {
-	    echo !empty($candidateSkills) ? '<span title="'. implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column]))) . '">' . implode(", ", array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['skills']))). ',...</span>' : (in_array(172, $data['skills']) && count($data['skills']) == 1 ? 'NONE' : '');
+	    echo !empty($candidateSkills) ? '<span title="'. implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column]))) . '">' . implode(", ", array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['skills']))). (!empty(array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['subskills']))) ? ', ' . implode(", ", array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['subskills']))) : '') .',...</span>' : (in_array(172, $data['skills']) && count($data['skills']) == 1 ? 'NONE' : '');
 	} else if ($column == 'currentLocation' || $column == 'preferredLocation') {
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateLocations, array_flip($candidate[$column]))) : '';
 	} else {
