@@ -65,6 +65,7 @@ function getCandidates($filterData = [], $start, $limit, $action) {
     $sql .= ' ORDER BY id DESC';
     $allSql = $sql;
     $allSql .= ' LIMIT ' . $start . ', 5000';
+    var_dump($allSql);
     $countResult = $db->query($allSql);
     $sql .= ' LIMIT ' . $start . ', ' . $limit;
     $result = $db->query($sql);
@@ -608,7 +609,7 @@ include 'menu.php'; ?>
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateQualifications, array_flip($candidate[$column]))) : '';
 	}
 	else if ($column == 'skills') {
-	    echo !empty($candidateSkills) ? '<span title="'. implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column]))) . '">' . implode(", ", array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['skills']))). (!empty(array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['subskills']))) ? ', ' . implode(", ", array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['subskills']))) : '') .',...</span>' : (in_array(172, $data['skills']) && count($data['skills']) == 1 ? 'NONE' : '');
+	    echo !empty($candidateSkills) ? '<span title="'. implode(", ", array_intersect_key($candidateSkills, array_flip($candidate[$column]))) . '">' . implode(", ", array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['skills']))). (!empty($_POST['subskills']) && !empty(array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['subskills']))) ? ', ' . implode(", ", array_intersect_key(array_intersect_key($candidateSkills, array_flip($candidate[$column])), array_flip($_POST['subskills']))) : '') .',...</span>' : (in_array(172, $data['skills']) && count($data['skills']) == 1 ? 'NONE' : '');
 	} else if ($column == 'currentLocation' || $column == 'preferredLocation') {
 	    echo !empty($candidate[$column]) ? implode(", ", array_intersect_key($candidateLocations, array_flip($candidate[$column]))) : '';
 	} else {
