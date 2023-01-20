@@ -12,7 +12,7 @@ $db = new mysqli(servername, username, password, dbname);
 $date = date('Y-m-d');
 $emailCount = 0;
 $logHandle = fopen('cron.log', 'c');
-while ($emailCount < 400) {
+while ($emailCount < 350) {
     $failedEmails = [];
     $requirements = [];
     while (count($requirements) < 1) {
