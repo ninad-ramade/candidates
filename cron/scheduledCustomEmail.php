@@ -43,9 +43,9 @@ while ($emailCount < 350) {
                         $candidates[] = $row;
                     }
                     foreach ($candidates as $candidate) {
-                        if($candidate['email'] != 'ninad.ramade@gmail.com') {
+                        /* if($candidate['email'] != 'ninad.ramade@gmail.com') {
                             continue;
-                        }
+                        } */
                         $resultSkills = array_filter(explode(",", $candidate['skills']));
                         $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
                         try {
