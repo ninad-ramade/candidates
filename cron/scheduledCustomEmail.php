@@ -25,7 +25,7 @@ while ($emailCount < 350) {
             $where = [];
             foreach($requirements as $eachReq) {
                 $sql = "UPDATE vendor_req SET cronStatus = 1 WHERE vreqid = " . $eachReq['vreqid'];
-                $db->query($sql);
+                //$db->query($sql);
                 $skills = array_values(array_filter(explode(",", $eachReq['skills'])));
                 $locations = array_values(array_filter(explode(",", $eachReq['worklocation'])));
                 foreach($skills as $eachskill) {
@@ -34,7 +34,7 @@ while ($emailCount < 350) {
                 $sql = "SELECT * FROM candidates WHERE " . implode(" OR ", $where);
                 $result = $db->query($sql);
                 if ($result->num_rows < 1) {
-                    $sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
+                    //$sql = "UPDATE vendor_req SET cronStatus = 2 WHERE vreqid = " . $eachReq['vreqid'];
                     $db->query($sql);
                     continue;
                 } else {
@@ -42,6 +42,7 @@ while ($emailCount < 350) {
                     while($row = $result->fetch_assoc()) {
                         $candidates[] = $row;
                     }
+                    var_dump($candidates);exit;
                     foreach ($candidates as $candidate) {
                         $resultSkills = array_filter(explode(",", $candidate['skills']));
                         $sql = "SELECT * FROM skills WHERE id IN (" . implode(",", array_unique($resultSkills)) . ")";
