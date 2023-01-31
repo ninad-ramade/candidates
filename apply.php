@@ -27,6 +27,7 @@ $sql = "SELECT recruiter.emailid FROM recruiter LEFT JOIN vendor_req ON vendor_r
 $result = $db->query($sql);
 $recruiterEmail = mysqli_fetch_assoc($result);
 $sql = "SELECT resume FROM candidates WHERE id = " . $application['candidateId'];
+var_dump($sql);exit;
 $result = $db->query($sql);
 $candidate = mysqli_fetch_assoc($result);
 $subjectArray = explode(' ', $application['subject']);
