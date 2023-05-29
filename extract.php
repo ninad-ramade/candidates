@@ -198,7 +198,7 @@ else {
             if(!empty($existingCandidate)) {
                 $overallExp = !empty($existingCandidate['overallExperience']) ? $existingCandidate['overallExperience'] : $experience;
                 $relevantExp = !empty($existingCandidate['relevantExperience']) ? $existingCandidate['relevantExperience'] : $experience;
-                $sql = "UPDATE candidates SET name = '" . $name[0] . "', mobile = '" . $phone . "', skills = '" . $skillIds . "', subskills = '" . $skillIds . "', currentLocation = '" . $currentLocation . "', preferredLocation = '" . $preferredLocations . "', overallExperience = '" . $overallExp . "', relevantExperience = '" . $relevantExp . "', education = '" . $finalEducations . "',  resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
+                $sql = "UPDATE candidates SET mobile = '" . $phone . "', skills = '" . $skillIds . "', subskills = '" . $skillIds . "', currentLocation = '" . $currentLocation . "', preferredLocation = '" . $preferredLocations . "', overallExperience = '" . $overallExp . "', relevantExperience = '" . $relevantExp . "', education = '" . $finalEducations . "',  resume = '" . $resume . "', status = 'Created' WHERE email = '" . $email . "'";
             } else {
                 $sql = "INSERT INTO candidates (name, mobile, email, skills, subskills, currentLocation, preferredLocation, overallExperience, relevantExperience, resume, status) VALUES ('" . $name[0] . "', '".$phone."', '".$email."', '".$skillIds."', '".$skillIds."', '".$currentLocation."', '".$preferredLocations."', '". $experience ."', '" .$experience. "', '" . $resume . "', 'Created')";
             }
