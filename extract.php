@@ -67,7 +67,7 @@ function read_docx($filename){
     return $striped_content;
 }
 function getEmailFromContent($content) {
-    preg_match_all("/[a-z0-9_\-\+\.]+@[a-z0-9\-]+\.([a-z]{2,4})(?:\.[a-z]{2})?/i", $content, $email);
+    preg_match_all("/[a-z0-9_\-\+\.]+@[a-z0-9\-]+\.([a-z]{2,4})(?:\.[a-z]{2})?/i", $content, $emails);
     $emails = filter_var_array($emails, FILTER_VALIDATE_EMAIL);
     $emails = array_filter($emails);
     $email = !empty($emails) ? $emails[0][0] : '';
