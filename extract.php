@@ -95,7 +95,7 @@ function getExperienceFromContent($content) {
 function getPhoneFromContent($content) {
     preg_match_all("/[+91\s-]+[6-9][0-9]{9}/", $content, $phones);
     $phones = array_filter($phones);
-    return !empty($phones) ? $phones[0][0] : '';
+    return !empty($phones) ? trim($phones[0][0]) : '';
 }
 function getLocationsFromContent($content) {
     $allLocations = getLocations();
